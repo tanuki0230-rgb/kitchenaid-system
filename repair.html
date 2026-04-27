@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ใบรับเครื่องซ่อม - KitchenAid</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .badge-repairing    { background:#fef3c7; color:#92400e; }
+    .badge-waiting      { background:#ede9fe; color:#5b21b6; }
+    .badge-done         { background:#d1fae5; color:#065f46; }
+    .badge-received     { background:#dbeafe; color:#1e40af; }
+    .badge-returned     { background:#f3f4f6; color:#374151; }
+    .status-timeline { display:flex; gap:0; overflow-x:auto; }
+    .status-step { flex:1; min-width:90px; text-align:center; padding:8px 4px; font-size:0.72rem;
+      border-top:3px solid #e5e7eb; color:#9ca3af; cursor:pointer; transition:all 0.15s; white-space:nowrap; }
+    .status-step.active { border-top-color:#b91c1c; color:#b91c1c; font-weight:700; }
+    .status-step.passed { border-top-color:#16a34a; color:#16a34a; }
+    .status-step:hover  { border-top-color:#b91c1c; color:#b91c1c; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<nav class="bg-red-700 text-white shadow-lg no-print sticky top-0 z-40">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center justify-between h-14">
+      <a href="index.html" class="flex items-center gap-2 font-bold text-lg text-white no-underline">
+        <span class="text-2xl">🍳</span><span>KitchenAid</span>
+      </a>
+      <div class="hidden md:flex gap-1">
+        <a href="index.html"      class="nav-link">🏠 แดชบอร์ด</a>
+        <a href="repair.html"     class="nav-link active">🔧 รับเครื่องซ่อม</a>
+        <a href="quotation.html"  class="nav-link">📄 ใบเสนอราคา</a>
+        <a href="invoice.html"    class="nav-link">🧾 บิล</a>
+        <a href="stock.html"      class="nav-link">📦 สต็อก</a>
+        <a href="settings.html"   class="nav-link">⚙️ ตั้งค่า</a>
+      </div>
+      <button onclick="document.getElementById('mnav').classList.toggle('hidden')" class="md:hidden p-2 rounded hover:bg-red-600">☰</button>
+    </div>
+    <div id="mnav" class="hidden md:hidden border-t border-red-600 py-2">
+      <a href="index.html"     class="block py-2 px-3 rounded hover:bg-red-600 mb-1">🏠 แดชบอร์ด</a>
+      <a href="repair.html"    class="block py-2 px-3 rounded hover:bg-red-600 mb-1">🔧 รับเครื่องซ่อม</a>
+      <a href="quotation.html" class="block py-2 px-3 rounded hover:bg-red-600 mb-1">📄 ใบเสนอราคา</a>
+      <a href="invoice.html"   class="block py-2 px-3 rounded hover:bg-red-600 mb-1">🧾 บิล</a>
+      <a href="stock.html"     class="block py-2 px-3 rounded hover:bg-red-600 mb-1">📦 สต็อก</a>
+      <a href="settings.html"  class="block py-2 px-3 rounded hover:bg-red-600">⚙️ ตั้งค่า</a>
+    </div>
+  </div>
+</nav>
+
+<main class="max-w-7xl mx-auto px-4 py-6">
+
+  <!-- ========== LIST VIEW ========== -->
+  <div id="list-view">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+      <div>
+        <h1 class="text-xl font-bold text-gray-900">🔧 ใบรับเครื่องซ่อม</h1>
+        <p class="text-sm text-gray-500 mt-0.5">จัดการงานซ่อมและติดตามสถานะ</p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button class="btn btn-primary" onclick="showForm()">+ รับเครื่องซ่อมใหม่</button>
+        <button class="btn btn-teal" onclick="openImportModal()">📲 นำเข้าจากฟอร์มออนไลน์</button>
+        <a href="customer-form.html" target="_blank" class="btn btn-secondary btn-sm flex items-center gap-1">🔗 ลิงก์ฟอร์มลูกค้า</a>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-5">
+      <div class="stat-card">
+        <div class="stat-lbl">ทั้งหมด</div>
+        <div class="stat-val mt-1" id="s-all">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-lbl">รับเครื่องแล้ว</div>
+        <div class="stat-val mt-1 text-blue-600" id="s-received">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-lbl">กำลังซ่อม</div>
+        <div class="stat-val mt-1 text-yellow-600" id="s-repairing">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-lbl">ซ่อมเสร็จ</div>
+        <div class="stat-val mt-1 text-green-600" id="s-done">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-lbl">ส่งคืนแล้ว</div>
+        <div class="stat-val mt-1 text-gray-500" id="s-returned">0</div>
+      </div>
+    </div>
+
+    <!-- Filter & Search -->
+    <div class="card mb-4">
+      <div class="p-4 flex flex-wrap gap-3 items-center">
+        <input id="search" class="form-input" style="max-width:260px" placeholder="🔍 ค้นหาเลขที่ / ชื่อ / รุ่น..." oninput="renderList()">
+        <div class="flex flex-wrap gap-2" id="filter-pills">
+          <span class="pill pill-active"  data-f="all"           onclick="setFilter('all',this)">ทั้งหมด</span>
+          <span class="pill pill-inactive" data-f="received"      onclick="setFilter('received',this)">รับเครื่องแล้ว</span>
+          <span class="pill pill-inactive" data-f="repairing"     onclick="setFilter('repairing',this)">กำลังซ่อม</span>
+          <span class="pill pill-inactive" data-f="waiting_parts" onclick="setFilter('waiting_parts',this)">รอชิ้นส่วน</span>
+          <span class="pill pill-inactive" data-f="done"          onclick="setFilter('done',this)">ซ่อมเสร็จ</span>
+          <span class="pill pill-inactive" data-f="returned"      onclick="setFilter('returned',this)">ส่งคืนแล้ว</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="tbl-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>เลขที่</th>
+              <th>วัน/เวลารับ</th>
+              <th>ชื่อลูกค้า</th>
+              <th>เบอร์โทร</th>
+              <th>รุ่นเครื่อง</th>
+              <th>สี</th>
+              <th>อาการเสีย</th>
+              <th>สถานะ</th>
+              <th class="text-center">จัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="repair-tbody">
+            <tr><td colspan="9" class="text-center text-gray-400 py-10">ยังไม่มีข้อมูล — คลิก "+ รับเครื่องซ่อมใหม่"</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== FORM VIEW ========== -->
+  <div id="form-view" style="display:none">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+      <div class="flex items-center gap-3">
+        <button class="btn btn-secondary btn-sm" onclick="showList()">← กลับ</button>
+        <div>
+          <h1 class="text-xl font-bold text-gray-900" id="form-title">รับเครื่องซ่อมใหม่</h1>
+          <p class="text-sm text-gray-400 mt-0.5" id="form-number"></p>
+        </div>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button class="btn btn-primary btn-sm" onclick="saveRepair()">💾 บันทึก</button>
+        <button class="btn btn-info btn-sm" onclick="printRepair()">🖨️ พิมพ์ใบรับ</button>
+        <button class="btn btn-secondary btn-sm" id="qt-btn" onclick="goToQuotation()" style="display:none">📄 สร้างใบเสนอราคา</button>
+        <button class="btn btn-teal btn-sm" id="inv-btn" onclick="goToInvoice()" style="display:none">🧾 สร้างบิล</button>
+      </div>
+    </div>
+
+    <!-- Status Timeline -->
+    <div class="card mb-4 no-print">
+      <div class="p-4">
+        <p class="text-xs text-gray-500 mb-2 font-medium">สถานะงานซ่อม</p>
+        <div class="status-timeline" id="status-timeline">
+          <div class="status-step" data-s="received"      onclick="setStatusStep('received')">📥 รับเครื่องแล้ว</div>
+          <div class="status-step" data-s="repairing"     onclick="setStatusStep('repairing')">🔧 กำลังซ่อม</div>
+          <div class="status-step" data-s="waiting_parts" onclick="setStatusStep('waiting_parts')">⏳ รอชิ้นส่วน</div>
+          <div class="status-step" data-s="done"          onclick="setStatusStep('done')">✅ ซ่อมเสร็จ</div>
+          <div class="status-step" data-s="returned"      onclick="setStatusStep('returned')">📤 ส่งคืนแล้ว</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <!-- Customer Info -->
+      <div class="card">
+        <div class="card-header">👤 ข้อมูลลูกค้า</div>
+        <div class="p-4 space-y-3">
+          <div>
+            <label class="form-label">ชื่อลูกค้า <span class="text-red-500">*</span></label>
+            <input id="f-name" class="form-input" placeholder="ชื่อ-นามสกุล">
+          </div>
+          <div>
+            <label class="form-label">เบอร์โทรศัพท์</label>
+            <input id="f-phone" class="form-input" placeholder="08x-xxx-xxxx" type="tel">
+          </div>
+          <div>
+            <label class="form-label">อีเมล</label>
+            <input id="f-email" class="form-input" placeholder="email@example.com" type="email">
+          </div>
+          <div>
+            <label class="form-label">ที่อยู่</label>
+            <textarea id="f-address" class="form-input" rows="2" placeholder="ที่อยู่ (สำหรับส่งกลับ)"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Machine Info -->
+      <div class="card">
+        <div class="card-header">🍳 ข้อมูลเครื่อง</div>
+        <div class="p-4 space-y-3">
+          <div>
+            <label class="form-label">รุ่นเครื่อง <span class="text-red-500">*</span></label>
+            <input id="f-model" class="form-input" placeholder="เช่น KSM150, KSM7, KSM3311X..." list="model-list">
+            <datalist id="model-list">
+              <option value="KSM150 Artisan (4.8L)">
+              <option value="KSM3311X Artisan Mini (3.3L)">
+              <option value="KSM195 Artisan Design (4.8L)">
+              <option value="KSM7 Pro Line (6.9L)">
+              <option value="KSM8 Commercial (10.4L)">
+              <option value="KSM75 Ultra Power (4.3L)">
+              <option value="KSM90 Classic (4.3L)">
+              <option value="KSM500 Pro 500 (4.8L)">
+              <option value="KSM600 Pro 600 (5.7L)">
+              <option value="KSM70 Classic Plus (4.3L)">
+              <option value="KHM5 Hand Mixer 5Speed">
+              <option value="KHM7 Hand Mixer 7Speed">
+              <option value="KHM9 Hand Mixer 9Speed">
+            </datalist>
+          </div>
+          <div>
+            <label class="form-label">สี</label>
+            <input id="f-color" class="form-input" placeholder="เช่น Empire Red, Silver, White..." list="color-list">
+            <datalist id="color-list">
+              <option value="Empire Red (แดง)">
+              <option value="Silver (เงิน)">
+              <option value="White (ขาว)">
+              <option value="Black (ดำ)">
+              <option value="Contour Silver (เงินเข้ม)">
+              <option value="Ice Blue (ฟ้า)">
+              <option value="Pistachio (เขียว)">
+              <option value="Almond Cream (ครีม)">
+              <option value="Misty Blue (น้ำเงิน)">
+              <option value="Hibiscus (ชมพู)">
+            </datalist>
+          </div>
+          <div>
+            <label class="form-label">วัน/เวลารับเครื่อง <span class="text-red-500">*</span></label>
+            <input id="f-received-at" class="form-input" type="datetime-local">
+          </div>
+          <div>
+            <label class="form-label">วันนัดรับเครื่องคืน (ประมาณ)</label>
+            <input id="f-estimate-date" class="form-input" type="date">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Symptoms & Notes -->
+    <div class="card mb-4">
+      <div class="card-header">📋 รายละเอียดงานซ่อม</div>
+      <div class="p-4 space-y-4">
+        <div>
+          <label class="form-label">อาการเสีย / ปัญหาที่พบ <span class="text-red-500">*</span></label>
+          <textarea id="f-symptoms" class="form-input" rows="3"
+            placeholder="เช่น มอเตอร์ไม่หมุน, เสียงดังผิดปกติ, ชามหัก, ความเร็วไม่ทำงาน..."></textarea>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="form-label">ของที่มาพร้อมเครื่อง</label>
+            <textarea id="f-accessories" class="form-input" rows="2"
+              placeholder="เช่น ชาม, ตะกร้อ, paddle, hook, สายไฟ..."></textarea>
+          </div>
+          <div>
+            <label class="form-label">หมายเหตุ / เงื่อนไขพิเศษ</label>
+            <textarea id="f-notes" class="form-input" rows="2"
+              placeholder="หมายเหตุเพิ่มเติมจากลูกค้าหรือช่าง"></textarea>
+          </div>
+        </div>
+        <div>
+          <label class="form-label">ราคาประเมิน (ถ้ามี)</label>
+          <input id="f-estimate-price" class="form-input" type="number" min="0" step="0.01"
+            placeholder="0.00" style="max-width:180px">
+          <span class="text-sm text-gray-400 ml-2">บาท</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hidden status field -->
+    <input type="hidden" id="f-status" value="received">
+
+  </div><!-- /form-view -->
+
+</main>
+
+<!-- ===== Import Modal ===== -->
+<div id="import-modal" class="modal-bg" style="display:none" onclick="if(event.target===this)closeImportModal()">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>📲 นำเข้าข้อมูลจากฟอร์มออนไลน์</h3>
+      <button onclick="closeImportModal()" class="text-gray-400 hover:text-gray-600 text-xl font-bold leading-none">×</button>
+    </div>
+    <div class="modal-body space-y-4">
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-700">
+        ลูกค้ากรอกข้อมูลผ่านลิงก์ฟอร์มแล้วจะได้ <strong>รหัสงานซ่อม</strong> มาให้<br>
+        นำรหัสนั้นมาวางในช่องด้านล่างเพื่อนำเข้าข้อมูล
+      </div>
+      <div>
+        <label class="form-label">วางรหัสงานซ่อมที่นี่</label>
+        <textarea id="import-code" class="form-input font-mono text-sm" rows="4"
+          placeholder="KA:eyJ2IjoxLCJzdWJtaXR0ZWRBdCI6Ii4uLiJ9..."></textarea>
+      </div>
+      <div id="import-preview" style="display:none" class="bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm space-y-1">
+        <div class="font-semibold text-gray-700 mb-2">✅ พบข้อมูล — ตรวจสอบก่อนนำเข้า</div>
+        <div id="import-preview-content"></div>
+      </div>
+      <div id="import-error" style="display:none" class="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-600">
+        ❌ รหัสไม่ถูกต้อง กรุณาตรวจสอบรหัสที่ลูกค้าส่งมา
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary btn-sm" onclick="closeImportModal()">ยกเลิก</button>
+      <button class="btn btn-secondary btn-sm" onclick="previewImport()">🔍 ตรวจสอบรหัส</button>
+      <button class="btn btn-primary btn-sm" id="confirm-import-btn" onclick="confirmImport()" style="display:none">✅ นำเข้าและเปิดฟอร์ม</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/db.js"></script>
+<script>
+// ---- State ----
+let editingId  = null;
+let filterState = 'all';
+
+const fmt = (n,d=2) => Number(n||0).toLocaleString('th-TH',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmtDate  = d => d ? new Date(d).toLocaleDateString('th-TH') : '';
+const fmtDT    = d => {
+  if (!d) return '';
+  const dt = new Date(d);
+  return dt.toLocaleDateString('th-TH') + ' ' + dt.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+};
+const nowDT = () => {
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  return now.toISOString().slice(0,16);
+};
+const todayDate = () => new Date().toISOString().slice(0,10);
+
+const STATUS_ORDER = ['received','repairing','waiting_parts','done','returned'];
+const STATUS_CLS   = { received:'badge-received', repairing:'badge-repairing', waiting_parts:'badge-waiting', done:'badge-done', returned:'badge-returned' };
+const STATUS_LBL   = { received:'รับเครื่องแล้ว', repairing:'กำลังซ่อม', waiting_parts:'รอชิ้นส่วน', done:'ซ่อมเสร็จ', returned:'ส่งคืนแล้ว' };
+
+function badge(s) {
+  return `<span class="badge ${STATUS_CLS[s]||'badge-received'}">${STATUS_LBL[s]||s}</span>`;
+}
+
+// ---- Filter ----
+function setFilter(f, el) {
+  filterState = f;
+  document.querySelectorAll('#filter-pills .pill').forEach(p => p.classList.replace('pill-active','pill-inactive'));
+  el.classList.replace('pill-inactive','pill-active');
+  renderList();
+}
+
+// ---- List ----
+function renderList() {
+  const q = (document.getElementById('search').value || '').toLowerCase();
+  let list = DB.getRepairs().sort((a,b) => b.createdAt.localeCompare(a.createdAt));
+  if (filterState !== 'all') list = list.filter(x => x.status === filterState);
+  if (q) list = list.filter(x =>
+    ((x.number||'')+(x.customerName||'')+(x.model||'')+(x.customerPhone||'')).toLowerCase().includes(q)
+  );
+
+  // Stats
+  const all = DB.getRepairs();
+  document.getElementById('s-all').textContent      = all.length;
+  document.getElementById('s-received').textContent = all.filter(r=>r.status==='received').length;
+  document.getElementById('s-repairing').textContent= all.filter(r=>r.status==='repairing'||r.status==='waiting_parts').length;
+  document.getElementById('s-done').textContent     = all.filter(r=>r.status==='done').length;
+  document.getElementById('s-returned').textContent = all.filter(r=>r.status==='returned').length;
+
+  const tbody = document.getElementById('repair-tbody');
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="9" class="text-center text-gray-400 py-10">ไม่พบข้อมูล</td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(r => `
+    <tr>
+      <td class="font-mono text-sm text-blue-600 whitespace-nowrap">${r.number}</td>
+      <td class="text-sm whitespace-nowrap">${fmtDT(r.receivedAt)}</td>
+      <td class="text-sm font-medium">${r.customerName||'-'}</td>
+      <td class="text-sm text-gray-500 whitespace-nowrap">${r.customerPhone||'-'}</td>
+      <td class="text-sm">${r.model||'-'}</td>
+      <td class="text-sm text-gray-500">${r.color||'-'}</td>
+      <td class="text-sm text-gray-600 max-w-xs">
+        <div class="truncate" style="max-width:180px" title="${escHtml(r.symptoms||'')}">${r.symptoms||'-'}</div>
+      </td>
+      <td>${badge(r.status)}</td>
+      <td class="text-center">
+        <div class="flex gap-1 justify-center flex-wrap">
+          <button class="btn btn-secondary btn-xs" onclick="showForm('${r.id}')">✏️ แก้ไข</button>
+          <button class="btn btn-info btn-xs"      onclick="printById('${r.id}')">🖨️</button>
+          <button class="btn btn-secondary btn-xs" onclick="prefillQuotation('${r.id}')">📄</button>
+          <button class="btn btn-teal btn-xs"      onclick="prefillInvoice('${r.id}')">🧾</button>
+          <button class="btn btn-danger btn-xs"    onclick="deleteRepair('${r.id}')">🗑️</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function showList() {
+  document.getElementById('list-view').style.display = '';
+  document.getElementById('form-view').style.display = 'none';
+  renderList();
+}
+
+// ---- Form ----
+function showForm(id = null) {
+  editingId = id;
+  document.getElementById('list-view').style.display = 'none';
+  document.getElementById('form-view').style.display = '';
+
+  if (id) {
+    const r = DB.getRepairById(id);
+    if (!r) return;
+    document.getElementById('form-title').textContent = 'แก้ไขใบรับเครื่องซ่อม';
+    document.getElementById('form-number').textContent = r.number;
+    document.getElementById('f-name').value           = r.customerName  || '';
+    document.getElementById('f-phone').value          = r.customerPhone || '';
+    document.getElementById('f-email').value          = r.customerEmail || '';
+    document.getElementById('f-address').value        = r.customerAddress || '';
+    document.getElementById('f-model').value          = r.model         || '';
+    document.getElementById('f-color').value          = r.color         || '';
+    document.getElementById('f-received-at').value    = r.receivedAt    || '';
+    document.getElementById('f-estimate-date').value  = r.estimateDate  || '';
+    document.getElementById('f-symptoms').value       = r.symptoms      || '';
+    document.getElementById('f-accessories').value    = r.accessories   || '';
+    document.getElementById('f-notes').value          = r.notes         || '';
+    document.getElementById('f-estimate-price').value = r.estimatePrice || '';
+    document.getElementById('f-status').value         = r.status        || 'received';
+    document.getElementById('qt-btn').style.display   = '';
+    document.getElementById('inv-btn').style.display  = '';
+    updateTimeline(r.status || 'received');
+  } else {
+    document.getElementById('form-title').textContent = 'รับเครื่องซ่อมใหม่';
+    document.getElementById('form-number').textContent = '';
+    ['f-name','f-phone','f-email','f-address','f-model','f-color',
+     'f-symptoms','f-accessories','f-notes','f-estimate-price'].forEach(i => document.getElementById(i).value = '');
+    document.getElementById('f-received-at').value   = nowDT();
+    document.getElementById('f-estimate-date').value = '';
+    document.getElementById('f-status').value        = 'received';
+    document.getElementById('qt-btn').style.display  = 'none';
+    document.getElementById('inv-btn').style.display = 'none';
+    updateTimeline('received');
+  }
+}
+
+// ---- Status Timeline ----
+function setStatusStep(s) {
+  document.getElementById('f-status').value = s;
+  updateTimeline(s);
+}
+
+function updateTimeline(current) {
+  const idx = STATUS_ORDER.indexOf(current);
+  document.querySelectorAll('.status-step').forEach((el, i) => {
+    el.classList.remove('active','passed');
+    if (i === idx) el.classList.add('active');
+    else if (i < idx) el.classList.add('passed');
+  });
+}
+
+// ---- Save ----
+function saveRepair() {
+  const name     = document.getElementById('f-name').value.trim();
+  const model    = document.getElementById('f-model').value.trim();
+  const symptoms = document.getElementById('f-symptoms').value.trim();
+  const recAt    = document.getElementById('f-received-at').value;
+  if (!name)     { alert('กรุณากรอกชื่อลูกค้า');  document.getElementById('f-name').focus();        return; }
+  if (!model)    { alert('กรุณากรอกรุ่นเครื่อง');  document.getElementById('f-model').focus();       return; }
+  if (!symptoms) { alert('กรุณากรอกอาการเสีย');    document.getElementById('f-symptoms').focus();    return; }
+  if (!recAt)    { alert('กรุณากรอกวัน/เวลารับเครื่อง'); document.getElementById('f-received-at').focus(); return; }
+
+  const data = {
+    customerName    : name,
+    customerPhone   : document.getElementById('f-phone').value.trim(),
+    customerEmail   : document.getElementById('f-email').value.trim(),
+    customerAddress : document.getElementById('f-address').value.trim(),
+    model,
+    color           : document.getElementById('f-color').value.trim(),
+    receivedAt      : recAt,
+    estimateDate    : document.getElementById('f-estimate-date').value,
+    symptoms,
+    accessories     : document.getElementById('f-accessories').value.trim(),
+    notes           : document.getElementById('f-notes').value.trim(),
+    estimatePrice   : parseFloat(document.getElementById('f-estimate-price').value) || 0,
+    status          : document.getElementById('f-status').value || 'received',
+  };
+
+  if (editingId) {
+    DB.updateRepair(editingId, data);
+  } else {
+    data.number = DB.nextNum('RP');
+    const saved = DB.addRepair(data);
+    editingId = saved.id;
+    document.getElementById('form-number').textContent = data.number;
+    document.getElementById('form-title').textContent  = 'แก้ไขใบรับเครื่องซ่อม';
+    document.getElementById('qt-btn').style.display    = '';
+    document.getElementById('inv-btn').style.display   = '';
+  }
+  // Show saved confirmation briefly
+  const btn = document.querySelector('#form-view button[onclick="saveRepair()"]');
+  if (btn) { const orig = btn.textContent; btn.textContent = '✅ บันทึกแล้ว'; setTimeout(()=>btn.textContent=orig,1500); }
+}
+
+function deleteRepair(id) {
+  const r = DB.getRepairById(id);
+  if (!r) return;
+  if (!confirm(`ยืนยันการลบใบรับเครื่องซ่อม ${r.number}?`)) return;
+  DB.deleteRepair(id);
+  renderList();
+}
+
+// ---- Link to Quotation / Invoice ----
+function makePrefillData(r) {
+  const machineInfo = [
+    r.model ? `รุ่น: ${r.model}` : '',
+    r.color ? `สี: ${r.color}` : '',
+    r.symptoms ? `อาการ: ${r.symptoms}` : '',
+  ].filter(Boolean).join(' / ');
+  return {
+    repairNumber   : r.number,
+    customerName   : r.customerName,
+    customerPhone  : r.customerPhone,
+    customerAddress: r.customerAddress || '',
+    machineInfo,
+  };
+}
+
+function prefillQuotation(id) {
+  const r = DB.getRepairById(id);
+  if (!r) return;
+  sessionStorage.setItem('ka_prefill_qt', JSON.stringify(makePrefillData(r)));
+  window.location.href = 'quotation.html';
+}
+
+function prefillInvoice(id) {
+  const r = DB.getRepairById(id);
+  if (!r) return;
+  sessionStorage.setItem('ka_prefill_inv', JSON.stringify(makePrefillData(r)));
+  window.location.href = 'invoice.html';
+}
+
+function goToQuotation() { if (editingId) { saveRepair(); setTimeout(()=>prefillQuotation(editingId),100); } }
+function goToInvoice()   { if (editingId) { saveRepair(); setTimeout(()=>prefillInvoice(editingId),100); } }
+
+// ---- Print ----
+function buildPrintHtml(r) {
+  const s = DB.getSettings();
+  const recDT = r.receivedAt ? new Date(r.receivedAt).toLocaleString('th-TH',{
+    year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit',weekday:'long'
+  }) : '-';
+  const estDate = r.estimateDate ? new Date(r.estimateDate).toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'}) : '-';
+
+  const receiptBlock = (copy) => `
+    <div style="padding:16px 0 ${copy==='shop'?'0':'20px'}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:12px;border-bottom:3px solid #b91c1c">
+        <div>
+          <div style="font-size:16pt;font-weight:700;color:#b91c1c;margin:0 0 3px">${s.shopName}</div>
+          <div style="font-size:9pt;color:#555;line-height:1.6">
+            ${s.address?s.address+'<br>':''}
+            ${s.phone?'โทร. '+s.phone:''}${s.email?' | '+s.email:''}
+            ${s.taxId?'<br>เลขประจำตัวผู้เสียภาษี: '+s.taxId:''}
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:16pt;font-weight:700;color:#b91c1c">ใบรับเครื่องซ่อม</div>
+          <div style="font-size:10pt;color:#555;margin-top:4px">
+            เลขที่: <strong>${r.number}</strong><br>
+            ${copy==='customer'?'<span style="font-size:8pt;background:#f3f4f6;padding:2px 8px;border-radius:4px">สำเนาลูกค้า</span>':'<span style="font-size:8pt;background:#fee2e2;padding:2px 8px;border-radius:4px">ต้นฉบับร้าน</span>'}
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0">
+        <div style="border:1px solid #e5e7eb;border-radius:6px;padding:10px 14px">
+          <div style="font-size:8pt;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">ข้อมูลลูกค้า</div>
+          <div style="font-size:11pt;font-weight:600">${r.customerName||'-'}</div>
+          ${r.customerPhone?`<div style="font-size:10pt;color:#555;margin-top:3px">📞 ${r.customerPhone}</div>`:''}
+          ${r.customerEmail?`<div style="font-size:10pt;color:#555">✉️ ${r.customerEmail}</div>`:''}
+          ${r.customerAddress?`<div style="font-size:9.5pt;color:#555;margin-top:3px;white-space:pre-line">${r.customerAddress}</div>`:''}
+        </div>
+        <div style="border:1px solid #e5e7eb;border-radius:6px;padding:10px 14px">
+          <div style="font-size:8pt;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">ข้อมูลเครื่อง</div>
+          <div style="font-size:11pt;font-weight:600">${r.model||'-'}</div>
+          ${r.color?`<div style="font-size:10pt;color:#555;margin-top:3px">🎨 สี: ${r.color}</div>`:''}
+          <div style="font-size:10pt;color:#555;margin-top:6px">
+            <strong>รับเครื่อง:</strong><br>${recDT}
+          </div>
+          ${r.estimateDate?`<div style="font-size:10pt;color:#555;margin-top:3px"><strong>นัดรับคืน:</strong> ${estDate}</div>`:''}
+        </div>
+      </div>
+
+      <div style="border:1px solid #e5e7eb;border-radius:6px;padding:10px 14px;margin-bottom:10px">
+        <div style="font-size:8pt;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px">อาการเสีย / ปัญหาที่พบ</div>
+        <div style="font-size:10.5pt;white-space:pre-line">${r.symptoms||'-'}</div>
+      </div>
+
+      ${r.accessories?`
+      <div style="border:1px solid #e5e7eb;border-radius:6px;padding:10px 14px;margin-bottom:10px">
+        <div style="font-size:8pt;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px">ของที่มาพร้อมเครื่อง</div>
+        <div style="font-size:10pt">${r.accessories}</div>
+      </div>`:''}
+
+      ${r.estimatePrice?`
+      <div style="border:1px solid #e5e7eb;border-radius:6px;padding:10px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:9.5pt;color:#555">ราคาประเมิน (ไม่รวม VAT)</span>
+        <span style="font-size:13pt;font-weight:700;color:#b91c1c">฿ ${Number(r.estimatePrice).toLocaleString('th-TH',{minimumFractionDigits:2})}</span>
+      </div>`:''}
+
+      ${r.notes?`
+      <div style="padding:8px 14px;background:#fef3c7;border-left:3px solid #d97706;border-radius:0 6px 6px 0;margin-bottom:10px;font-size:9.5pt;color:#92400e">
+        <strong>หมายเหตุ:</strong> ${r.notes}
+      </div>`:''}
+
+      <div style="background:#fafafa;border:1px solid #e5e7eb;border-radius:6px;padding:10px 14px;font-size:8.5pt;color:#6b7280;margin-bottom:14px;line-height:1.7">
+        <strong style="color:#374151">เงื่อนไขการรับซ่อม:</strong><br>
+        1. กรุณาเก็บใบรับเครื่องซ่อมนี้ไว้เป็นหลักฐานในการรับเครื่องคืน<br>
+        2. ร้านไม่รับผิดชอบต่อข้อมูลหรือสิ่งของที่เก็บไว้ในเครื่อง<br>
+        3. ราคาซ่อมที่แจ้งเป็นราคาประมาณการ อาจมีการเปลี่ยนแปลงตามสภาพจริง<br>
+        4. หากไม่มารับเครื่องภายใน 30 วัน ร้านขอสงวนสิทธิ์เรียกเก็บค่าเก็บรักษา
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:30px">
+        <div>
+          <div style="border-top:1px solid #555;padding-top:5px;text-align:center;font-size:9pt;color:#777;margin-top:40px">
+            ลายเซ็นลูกค้า<br>(.....................................................)
+          </div>
+          <div style="text-align:center;font-size:8.5pt;color:#9ca3af;margin-top:4px">วันที่ ............../............../..............
+          </div>
+        </div>
+        <div>
+          <div style="border-top:1px solid #555;padding-top:5px;text-align:center;font-size:9pt;color:#777;margin-top:40px">
+            ลายเซ็นผู้รับเครื่อง<br>(.....................................................)
+          </div>
+          <div style="text-align:center;font-size:8.5pt;color:#9ca3af;margin-top:4px">วันที่ ............../............../..............
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  return `<!DOCTYPE html><html lang="th"><head>
+    <meta charset="UTF-8">
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap');
+      *{box-sizing:border-box}
+      body{font-family:'Sarabun',sans-serif;margin:0;padding:14px 20px;font-size:11pt;color:#111}
+      @page{size:A4;margin:12mm}
+      .cut{border-top:1px dashed #aaa;margin:10px 0;text-align:center;color:#aaa;font-size:8pt;letter-spacing:2px;padding-top:6px}
+    </style>
+  </head><body>
+    ${receiptBlock('shop')}
+    <div class="cut">✂ - - - - - - - - - - - - - - - - สำเนาลูกค้า - - - - - - - - - - - - - - - - ✂</div>
+    ${receiptBlock('customer')}
+    <script>window.onload=()=>window.print()<\/script>
+  </body></html>`;
+}
+
+function printById(id) {
+  const r = DB.getRepairById(id);
+  if (!r) return;
+  const w = window.open('','_blank');
+  w.document.write(buildPrintHtml(r));
+  w.document.close();
+}
+
+function printRepair() {
+  if (!editingId) { alert('กรุณาบันทึกข้อมูลก่อนพิมพ์'); return; }
+  const r = DB.getRepairById(editingId);
+  if (!r) return;
+  const w = window.open('','_blank');
+  w.document.write(buildPrintHtml(r));
+  w.document.close();
+}
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ---- Import from Online Form ----
+function decodeCustomerCode(raw) {
+  const str = raw.trim();
+  const payload = str.startsWith('KA:') ? str.slice(3) : str;
+  try {
+    return JSON.parse(decodeURIComponent(escape(atob(payload))));
+  } catch(e) {
+    try { return JSON.parse(atob(payload)); } catch(e2) { return null; }
+  }
+}
+
+function openImportModal() {
+  document.getElementById('import-code').value = '';
+  document.getElementById('import-preview').style.display = 'none';
+  document.getElementById('import-error').style.display   = 'none';
+  document.getElementById('confirm-import-btn').style.display = 'none';
+  document.getElementById('import-modal').style.display = 'flex';
+  setTimeout(() => document.getElementById('import-code').focus(), 100);
+}
+function closeImportModal() { document.getElementById('import-modal').style.display = 'none'; }
+
+function previewImport() {
+  const raw  = document.getElementById('import-code').value.trim();
+  const data = raw ? decodeCustomerCode(raw) : null;
+  document.getElementById('import-preview').style.display   = 'none';
+  document.getElementById('import-error').style.display     = 'none';
+  document.getElementById('confirm-import-btn').style.display = 'none';
+  if (!data || !data.customerName) {
+    document.getElementById('import-error').style.display = '';
+    return;
+  }
+  const sub = data.submittedAt ? new Date(data.submittedAt).toLocaleString('th-TH') : '-';
+  document.getElementById('import-preview-content').innerHTML = `
+    <div class="grid grid-cols-2 gap-x-4 gap-y-1">
+      <span class="text-gray-500">ชื่อลูกค้า</span><span class="font-medium">${escHtml(data.customerName||'-')}</span>
+      <span class="text-gray-500">เบอร์โทร</span><span>${escHtml(data.customerPhone||'-')}</span>
+      <span class="text-gray-500">อีเมล</span><span>${escHtml(data.customerEmail||'-')}</span>
+      <span class="text-gray-500">รุ่นเครื่อง</span><span class="font-medium">${escHtml(data.model||'-')}</span>
+      <span class="text-gray-500">สี</span><span>${escHtml(data.color||'-')}</span>
+      <span class="text-gray-500">ส่งฟอร์มเมื่อ</span><span class="text-xs">${sub}</span>
+    </div>
+    <div class="mt-2 pt-2 border-t border-gray-200">
+      <span class="text-gray-500">อาการเสีย:</span>
+      <div class="font-medium mt-1">${escHtml(data.symptoms||'-')}</div>
+    </div>
+    ${data.customerAddress?`<div class="mt-2 text-xs text-gray-500">ที่อยู่: ${escHtml(data.customerAddress)}</div>`:''}
+  `;
+  document.getElementById('import-preview').style.display = '';
+  document.getElementById('confirm-import-btn').style.display = '';
+  window._importData = data;
+}
+
+function confirmImport() {
+  const data = window._importData;
+  if (!data) return;
+  closeImportModal();
+  showForm(); // new form
+  setTimeout(() => {
+    document.getElementById('f-name').value        = data.customerName    || '';
+    document.getElementById('f-phone').value       = data.customerPhone   || '';
+    document.getElementById('f-email').value       = data.customerEmail   || '';
+    document.getElementById('f-address').value     = data.customerAddress || '';
+    document.getElementById('f-model').value       = data.model           || '';
+    document.getElementById('f-color').value       = data.color           || '';
+    document.getElementById('f-symptoms').value    = data.symptoms        || '';
+    document.getElementById('f-accessories').value = data.accessories     || '';
+    document.getElementById('f-received-at').value = nowDT();
+    window._importData = null;
+  }, 80);
+}
+
+// live-decode while typing
+document.addEventListener('DOMContentLoaded', () => {
+  const ta = document.getElementById('import-code');
+  if (ta) ta.addEventListener('input', () => {
+    document.getElementById('import-preview').style.display = 'none';
+    document.getElementById('import-error').style.display   = 'none';
+    document.getElementById('confirm-import-btn').style.display = 'none';
+  });
+});
+
+// ---- Init ----
+renderList();
+</script>
+</body>
+</html>

@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ใบเสนอราคา - KitchenAid</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<nav class="bg-red-700 text-white shadow-lg no-print sticky top-0 z-40">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center justify-between h-14">
+      <a href="index.html" class="flex items-center gap-2 font-bold text-lg text-white no-underline">
+        <span class="text-2xl">🍳</span><span>KitchenAid</span>
+      </a>
+      <div class="hidden md:flex gap-1">
+        <a href="index.html"      class="nav-link">🏠 แดชบอร์ด</a>
+        <a href="repair.html"     class="nav-link">🔧 รับเครื่องซ่อม</a>
+        <a href="quotation.html"  class="nav-link active">📄 ใบเสนอราคา</a>
+        <a href="invoice.html"    class="nav-link">🧾 บิล</a>
+        <a href="stock.html"      class="nav-link">📦 สต็อก</a>
+        <a href="settings.html"   class="nav-link">⚙️ ตั้งค่า</a>
+      </div>
+      <button onclick="document.getElementById('mnav').classList.toggle('hidden')" class="md:hidden p-2 rounded hover:bg-red-600">☰</button>
+    </div>
+    <div id="mnav" class="hidden md:hidden border-t border-red-600 py-2">
+      <a href="index.html"     class="block py-2 px-3 rounded hover:bg-red-600 mb-1">🏠 แดชบอร์ด</a>
+      <a href="repair.html"    class="block py-2 px-3 rounded hover:bg-red-600 mb-1">🔧 รับเครื่องซ่อม</a>
+      <a href="quotation.html" class="block py-2 px-3 rounded hover:bg-red-600 mb-1">📄 ใบเสนอราคา</a>
+      <a href="invoice.html"   class="block py-2 px-3 rounded hover:bg-red-600 mb-1">🧾 บิล</a>
+      <a href="stock.html"     class="block py-2 px-3 rounded hover:bg-red-600 mb-1">📦 สต็อก</a>
+      <a href="settings.html"  class="block py-2 px-3 rounded hover:bg-red-600">⚙️ ตั้งค่า</a>
+    </div>
+  </div>
+</nav>
+
+<main class="max-w-7xl mx-auto px-4 py-6">
+
+  <!-- ========== LIST VIEW ========== -->
+  <div id="list-view">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+      <div>
+        <h1 class="text-xl font-bold text-gray-900">📄 ใบเสนอราคา</h1>
+        <p class="text-sm text-gray-500 mt-0.5">จัดการใบเสนอราคาทั้งหมด</p>
+      </div>
+      <button class="btn btn-primary" onclick="showForm()">+ สร้างใบเสนอราคาใหม่</button>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="card mb-4">
+      <div class="p-4 flex flex-wrap gap-3 items-center">
+        <input id="search" class="form-input" style="max-width:260px" placeholder="🔍 ค้นหาเลขที่ / ลูกค้า..." oninput="renderList()">
+        <div class="flex flex-wrap gap-2" id="filter-pills">
+          <span class="pill pill-active" data-f="all" onclick="setFilter('all',this)">ทั้งหมด</span>
+          <span class="pill pill-inactive" data-f="draft" onclick="setFilter('draft',this)">ร่าง</span>
+          <span class="pill pill-inactive" data-f="sent" onclick="setFilter('sent',this)">ส่งแล้ว</span>
+          <span class="pill pill-inactive" data-f="approved" onclick="setFilter('approved',this)">อนุมัติ</span>
+          <span class="pill pill-inactive" data-f="rejected" onclick="setFilter('rejected',this)">ปฏิเสธ</span>
+          <span class="pill pill-inactive" data-f="converted" onclick="setFilter('converted',this)">แปลงเป็นบิล</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="tbl-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>เลขที่</th>
+              <th>วันที่</th>
+              <th>ลูกค้า</th>
+              <th>เบอร์โทร</th>
+              <th class="text-right">ยอดรวม</th>
+              <th>สถานะ</th>
+              <th class="text-center">จัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="qt-tbody">
+            <tr><td colspan="7" class="text-center text-gray-400 py-10">ยังไม่มีข้อมูล</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== FORM VIEW ========== -->
+  <div id="form-view" style="display:none">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+      <div class="flex items-center gap-3">
+        <button class="btn btn-secondary btn-sm" onclick="showList()">← กลับ</button>
+        <div>
+          <h1 class="text-xl font-bold text-gray-900" id="form-title">สร้างใบเสนอราคาใหม่</h1>
+          <p class="text-sm text-gray-400 mt-0.5" id="form-number"></p>
+        </div>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button class="btn btn-secondary btn-sm" onclick="saveDoc('draft')">💾 บันทึกร่าง</button>
+        <button class="btn btn-primary btn-sm" onclick="saveDoc('sent')">✅ บันทึก &amp; ส่ง</button>
+        <button class="btn btn-info btn-sm" onclick="printDoc()">🖨️ พิมพ์</button>
+        <button class="btn btn-purple btn-sm" id="convert-btn" onclick="doConvert()" style="display:none">🔄 แปลงเป็นบิล</button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <!-- Customer -->
+      <div class="card">
+        <div class="card-header">👤 ข้อมูลลูกค้า</div>
+        <div class="p-4 space-y-3">
+          <div>
+            <label class="form-label">ชื่อลูกค้า <span class="text-red-500">*</span></label>
+            <input id="f-name" class="form-input" placeholder="ชื่อ-นามสกุล / บริษัท">
+          </div>
+          <div>
+            <label class="form-label">เบอร์โทรศัพท์</label>
+            <input id="f-phone" class="form-input" placeholder="08x-xxx-xxxx" type="tel">
+          </div>
+          <div>
+            <label class="form-label">ที่อยู่</label>
+            <textarea id="f-address" class="form-input" rows="3" placeholder="ที่อยู่สำหรับจัดส่ง / ออกบิล"></textarea>
+          </div>
+        </div>
+      </div>
+      <!-- Doc info -->
+      <div class="card">
+        <div class="card-header">📋 ข้อมูลเอกสาร</div>
+        <div class="p-4 space-y-3">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="form-label">วันที่</label>
+              <input id="f-date" class="form-input" type="date">
+            </div>
+            <div>
+              <label class="form-label">ใช้ได้ถึงวันที่</label>
+              <input id="f-valid" class="form-input" type="date">
+            </div>
+          </div>
+          <div>
+            <label class="form-label">สถานะ</label>
+            <select id="f-status" class="form-input">
+              <option value="draft">ร่าง</option>
+              <option value="sent">ส่งแล้ว</option>
+              <option value="approved">อนุมัติ</option>
+              <option value="rejected">ปฏิเสธ</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">หมายเหตุ</label>
+            <textarea id="f-notes" class="form-input" rows="3" placeholder="หมายเหตุเพิ่มเติม เงื่อนไขการชำระ ฯลฯ"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Items -->
+    <div class="card mb-4">
+      <div class="card-header flex flex-wrap items-center justify-between gap-2">
+        <span>📦 รายการสินค้า / บริการ</span>
+        <div class="flex gap-2">
+          <button class="btn btn-secondary btn-sm" onclick="openPicker()">🔍 เลือกจากสต็อก</button>
+          <button class="btn btn-primary btn-sm" onclick="addItem()">+ เพิ่มรายการ</button>
+        </div>
+      </div>
+      <div class="p-4">
+        <div class="tbl-wrap">
+          <table class="items-tbl">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th style="min-width:180px">รายการ / รายละเอียด</th>
+                <th style="min-width:90px">รหัสอะไหล่</th>
+                <th style="min-width:70px">จำนวน</th>
+                <th style="min-width:55px">หน่วย</th>
+                <th style="min-width:110px">ราคา/หน่วย</th>
+                <th style="min-width:70px">ส่วนลด%</th>
+                <th style="min-width:110px">จำนวนเงิน</th>
+                <th class="col-del"></th>
+              </tr>
+            </thead>
+            <tbody id="items-body"></tbody>
+          </table>
+        </div>
+        <button class="mt-3 text-sm text-red-600 hover:underline" onclick="addItem()">+ เพิ่มรายการ</button>
+      </div>
+    </div>
+
+    <!-- Totals -->
+    <div class="flex justify-end mb-6">
+      <div class="w-full md:w-80 totals-box">
+        <table>
+          <tr>
+            <td>ราคารวม</td>
+            <td id="t-sub">฿ 0.00</td>
+          </tr>
+          <tr>
+            <td>ส่วนลด (฿)</td>
+            <td><input id="f-disc" type="number" min="0" step="0.01" value="0"
+                class="w-28 text-right border border-gray-300 rounded px-2 py-1 text-sm" oninput="calcTotals()"></td>
+          </tr>
+          <tr>
+            <td>ราคาหลังหักส่วนลด</td>
+            <td id="t-after">฿ 0.00</td>
+          </tr>
+          <tr>
+            <td>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" id="f-vat" onchange="calcTotals()">
+                VAT <span id="t-vatrate">7</span>%
+              </label>
+            </td>
+            <td id="t-vat">฿ 0.00</td>
+          </tr>
+          <tr class="grand">
+            <td>ยอดรวมทั้งสิ้น</td>
+            <td id="t-total" class="text-red-700">฿ 0.00</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /form-view -->
+</main>
+
+<!-- Parts Picker Modal -->
+<div id="picker-modal" class="modal-bg" style="display:none" onclick="if(event.target===this)closePicker()">
+  <div class="modal-box lg">
+    <div class="modal-head">
+      <h3>🔍 เลือกอะไหล่จากสต็อก</h3>
+      <button onclick="closePicker()" class="text-gray-400 hover:text-gray-600 text-xl font-bold">×</button>
+    </div>
+    <div class="modal-body" style="padding-bottom:0">
+      <input id="picker-search" class="form-input mb-3" placeholder="ค้นหารหัส / ชื่ออะไหล่..." oninput="renderPicker()">
+    </div>
+    <div style="max-height:360px;overflow-y:auto;" id="picker-list"></div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary btn-sm" onclick="closePicker()">ปิด</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/db.js"></script>
+<script>
+// ---- State ----
+let editingId   = null;
+let currentItems = [];
+let filterState  = 'all';
+
+const fmt = (n,d=2)=>Number(n||0).toLocaleString('th-TH',{minimumFractionDigits:d,maximumFractionDigits:d});
+const today = ()=> new Date().toISOString().slice(0,10);
+const addDays = (d,n)=>{const dt=new Date(d);dt.setDate(dt.getDate()+n);return dt.toISOString().slice(0,10);};
+const fmtDate = d=>d?new Date(d).toLocaleDateString('th-TH'):'';
+
+const qtStatusCls = {draft:'badge-draft',sent:'badge-sent',approved:'badge-approved',rejected:'badge-rejected',converted:'badge-converted'};
+const qtStatusLbl = {draft:'ร่าง',sent:'ส่งแล้ว',approved:'อนุมัติ',rejected:'ปฏิเสธ',converted:'แปลงเป็นบิล'};
+function badge(s){return `<span class="badge ${qtStatusCls[s]||'badge-draft'}">${qtStatusLbl[s]||s}</span>`;}
+
+// ---- List ----
+function setFilter(f,el){
+  filterState=f;
+  document.querySelectorAll('#filter-pills .pill').forEach(p=>p.classList.replace('pill-active','pill-inactive'));
+  el.classList.replace('pill-inactive','pill-active');
+  renderList();
+}
+
+function renderList(){
+  const q = (document.getElementById('search').value||'').toLowerCase();
+  let list = DB.getQuotations().sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
+  if(filterState!=='all') list=list.filter(x=>x.status===filterState);
+  if(q) list=list.filter(x=>(x.number+'|'+(x.customerName||'')).toLowerCase().includes(q));
+  const tbody=document.getElementById('qt-tbody');
+  if(!list.length){tbody.innerHTML='<tr><td colspan="7" class="text-center text-gray-400 py-10">ไม่พบข้อมูล</td></tr>';return;}
+  tbody.innerHTML=list.map(x=>`
+    <tr>
+      <td class="font-mono text-sm text-blue-600">${x.number}</td>
+      <td class="text-sm">${fmtDate(x.date)}</td>
+      <td class="text-sm font-medium">${x.customerName||'-'}</td>
+      <td class="text-sm text-gray-500">${x.customerPhone||'-'}</td>
+      <td class="text-right text-sm font-medium">฿${fmt(x.total)}</td>
+      <td>${badge(x.status)}</td>
+      <td class="text-center">
+        <div class="flex gap-1 justify-center flex-wrap">
+          <button class="btn btn-secondary btn-xs" onclick="showForm('${x.id}')">✏️ แก้ไข</button>
+          ${x.status!=='converted'?`<button class="btn btn-purple btn-xs" onclick="convertToInvoice('${x.id}')">🔄 บิล</button>`:''}
+          <button class="btn btn-info btn-xs" onclick="printById('${x.id}')">🖨️</button>
+          <button class="btn btn-danger btn-xs" onclick="deleteDoc('${x.id}')">🗑️</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function showList(){
+  document.getElementById('list-view').style.display='';
+  document.getElementById('form-view').style.display='none';
+  renderList();
+}
+
+// ---- Form ----
+function showForm(id=null){
+  editingId=id;
+  currentItems=[];
+  document.getElementById('list-view').style.display='none';
+  document.getElementById('form-view').style.display='';
+
+  const s=DB.getSettings();
+  document.getElementById('t-vatrate').textContent=s.vatRate||7;
+
+  if(id){
+    const q=DB.getQuotationById(id);
+    if(!q)return;
+    document.getElementById('form-title').textContent='แก้ไขใบเสนอราคา';
+    document.getElementById('form-number').textContent=q.number;
+    document.getElementById('f-name').value=q.customerName||'';
+    document.getElementById('f-phone').value=q.customerPhone||'';
+    document.getElementById('f-address').value=q.customerAddress||'';
+    document.getElementById('f-date').value=q.date||today();
+    document.getElementById('f-valid').value=q.validUntil||addDays(today(),30);
+    document.getElementById('f-status').value=q.status||'draft';
+    document.getElementById('f-notes').value=q.notes||'';
+    document.getElementById('f-disc').value=q.discountAmount||0;
+    document.getElementById('f-vat').checked=!!q.vatEnabled;
+    currentItems=(q.items||[]).map(i=>({...i}));
+    if(q.status!=='converted') document.getElementById('convert-btn').style.display='';
+    else document.getElementById('convert-btn').style.display='none';
+  } else {
+    document.getElementById('form-title').textContent='สร้างใบเสนอราคาใหม่';
+    document.getElementById('form-number').textContent='';
+    document.getElementById('f-name').value='';
+    document.getElementById('f-phone').value='';
+    document.getElementById('f-address').value='';
+    document.getElementById('f-date').value=today();
+    document.getElementById('f-valid').value=addDays(today(),30);
+    document.getElementById('f-status').value='draft';
+    document.getElementById('f-notes').value='';
+    document.getElementById('f-disc').value=0;
+    document.getElementById('f-vat').checked=false;
+    document.getElementById('convert-btn').style.display='none';
+  }
+  renderItems();
+}
+
+// ---- Items ----
+function addItem(part=null){
+  currentItems.push({
+    id: Math.random().toString(36).slice(2),
+    description: part?part.name:'',
+    code: part?part.code:'',
+    qty: 1,
+    unit: part?part.unit:'ชิ้น',
+    price: part?part.salePrice:0,
+    discPct: 0,
+  });
+  renderItems();
+}
+
+function removeItem(idx){
+  currentItems.splice(idx,1);
+  renderItems();
+}
+
+function renderItems(){
+  const tbody=document.getElementById('items-body');
+  if(!currentItems.length){
+    tbody.innerHTML='<tr><td colspan="9" class="text-center text-gray-400 py-6">ยังไม่มีรายการ — คลิก "+ เพิ่มรายการ"</td></tr>';
+    calcTotals();
+    return;
+  }
+  tbody.innerHTML=currentItems.map((it,i)=>`
+    <tr>
+      <td class="col-num">${i+1}</td>
+      <td><input value="${escHtml(it.description)}" oninput="currentItems[${i}].description=this.value" placeholder="รายละเอียด"></td>
+      <td><input value="${escHtml(it.code)}" oninput="currentItems[${i}].code=this.value" placeholder="รหัส"></td>
+      <td><input type="number" min="1" step="any" value="${it.qty}" oninput="currentItems[${i}].qty=+this.value;renderAmt(${i})" style="width:70px"></td>
+      <td><input value="${escHtml(it.unit)}" oninput="currentItems[${i}].unit=this.value" style="width:55px" placeholder="ชิ้น"></td>
+      <td><input type="number" min="0" step="any" value="${it.price}" oninput="currentItems[${i}].price=+this.value;renderAmt(${i})" style="width:100px"></td>
+      <td><input type="number" min="0" max="100" step="any" value="${it.discPct||0}" oninput="currentItems[${i}].discPct=+this.value;renderAmt(${i})" style="width:65px"></td>
+      <td class="col-amt" id="amt-${i}">฿${fmt(itemAmt(it))}</td>
+      <td class="col-del"><button onclick="removeItem(${i})" class="text-red-400 hover:text-red-600 font-bold text-lg leading-none">×</button></td>
+    </tr>`).join('');
+  calcTotals();
+}
+
+function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function itemAmt(it){
+  return (it.qty||0)*(it.price||0)*(1-(it.discPct||0)/100);
+}
+
+function renderAmt(i){
+  const el=document.getElementById('amt-'+i);
+  if(el) el.textContent='฿'+fmt(itemAmt(currentItems[i]));
+  calcTotals();
+}
+
+function calcTotals(){
+  const subtotal=currentItems.reduce((s,it)=>s+itemAmt(it),0);
+  const disc=parseFloat(document.getElementById('f-disc').value)||0;
+  const afterDisc=Math.max(0,subtotal-disc);
+  const s=DB.getSettings();
+  const vatRate=s.vatRate||7;
+  const vatEnabled=document.getElementById('f-vat').checked;
+  const vatAmt=vatEnabled?afterDisc*vatRate/100:0;
+  const total=afterDisc+vatAmt;
+  document.getElementById('t-sub').textContent='฿'+fmt(subtotal);
+  document.getElementById('t-after').textContent='฿'+fmt(afterDisc);
+  document.getElementById('t-vat').textContent='฿'+fmt(vatAmt);
+  document.getElementById('t-total').textContent='฿'+fmt(total);
+  return {subtotal,disc,afterDisc,vatRate,vatEnabled,vatAmt,total};
+}
+
+// ---- Save ----
+function saveDoc(statusOverride){
+  const name=document.getElementById('f-name').value.trim();
+  if(!name){alert('กรุณากรอกชื่อลูกค้า');document.getElementById('f-name').focus();return;}
+  const tot=calcTotals();
+  const data={
+    customerName:name,
+    customerPhone:document.getElementById('f-phone').value.trim(),
+    customerAddress:document.getElementById('f-address').value.trim(),
+    date:document.getElementById('f-date').value,
+    validUntil:document.getElementById('f-valid').value,
+    status:statusOverride||document.getElementById('f-status').value,
+    notes:document.getElementById('f-notes').value.trim(),
+    items:currentItems.map(it=>({...it,amount:itemAmt(it)})),
+    subtotal:tot.subtotal,
+    discountAmount:tot.disc,
+    beforeVat:tot.afterDisc,
+    vatEnabled:tot.vatEnabled,
+    vatRate:tot.vatRate,
+    vatAmount:tot.vatAmt,
+    total:tot.total,
+  };
+  if(editingId){
+    DB.updateQuotation(editingId,data);
+  } else {
+    data.number=DB.nextNum('QT');
+    editingId=DB.addQuotation(data).id;
+    document.getElementById('form-number').textContent=data.number;
+  }
+  document.getElementById('convert-btn').style.display=data.status!=='converted'?'':'none';
+  showList();
+}
+
+function deleteDoc(id){
+  if(!confirm('ยืนยันการลบใบเสนอราคานี้?'))return;
+  DB.deleteQuotation(id);
+  renderList();
+}
+
+// ---- Convert to Invoice ----
+function doConvert(){ if(editingId) convertToInvoice(editingId); }
+
+function convertToInvoice(id){
+  const q=DB.getQuotationById(id);
+  if(!q){alert('ไม่พบใบเสนอราคา');return;}
+  if(q.status==='converted'){alert('ใบเสนอราคานี้แปลงเป็นบิลแล้ว');return;}
+  if(!confirm(`แปลงใบเสนอราคา ${q.number} เป็นบิล?`))return;
+  const inv={
+    number:DB.nextNum('IV'),
+    customerName:q.customerName,
+    customerPhone:q.customerPhone,
+    customerAddress:q.customerAddress,
+    date:today(),
+    dueDate:addDays(today(),30),
+    status:'unpaid',
+    notes:q.notes,
+    items:q.items,
+    subtotal:q.subtotal,
+    discountAmount:q.discountAmount,
+    beforeVat:q.beforeVat,
+    vatEnabled:q.vatEnabled,
+    vatRate:q.vatRate,
+    vatAmount:q.vatAmount,
+    total:q.total,
+    fromQuotation:q.number,
+  };
+  DB.addInvoice(inv);
+  DB.updateQuotation(id,{status:'converted'});
+  alert(`สร้างบิล ${inv.number} เรียบร้อย`);
+  showList();
+}
+
+// ---- Print ----
+function buildPrintHtml(q){
+  const s=DB.getSettings();
+  const rows=(q.items||[]).map((it,i)=>`
+    <tr>
+      <td style="text-align:center">${i+1}</td>
+      <td>${it.description||''}</td>
+      <td>${it.code||''}</td>
+      <td style="text-align:center">${it.qty}</td>
+      <td style="text-align:center">${it.unit||'ชิ้น'}</td>
+      <td style="text-align:right">${fmt(it.price)}</td>
+      <td style="text-align:center">${it.discPct||0}%</td>
+      <td style="text-align:right">${fmt(it.amount||itemAmt(it))}</td>
+    </tr>`).join('');
+  return `<!DOCTYPE html><html lang="th"><head>
+    <meta charset="UTF-8">
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap');
+      *{box-sizing:border-box} body{font-family:'Sarabun',sans-serif;margin:0;padding:24px;font-size:11pt;color:#111}
+      @page{size:A4;margin:15mm}
+      .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:16px;border-bottom:3px solid #b91c1c}
+      .shop-name{font-size:18pt;font-weight:700;color:#b91c1c;margin:0 0 4px}
+      .shop-info{font-size:9pt;color:#555;line-height:1.6}
+      .doc-type{font-size:22pt;font-weight:700;color:#b91c1c;text-align:right}
+      .doc-num{font-size:10pt;color:#555;text-align:right;margin-top:4px}
+      .cust-box{border:1px solid #ddd;border-radius:6px;padding:12px 16px;margin:16px 0}
+      .cust-box label{font-size:8pt;color:#888;text-transform:uppercase;letter-spacing:0.5px}
+      .cust-box p{margin:2px 0;font-size:10.5pt}
+      table.items{width:100%;border-collapse:collapse;margin:16px 0;font-size:10pt}
+      table.items th{background:#b91c1c;color:white;padding:8px 10px;text-align:left}
+      table.items td{padding:7px 10px;border-bottom:1px solid #eee}
+      table.items tbody tr:last-child td{border-bottom:none}
+      .totals{display:flex;justify-content:flex-end;margin-top:8px}
+      .totals table{width:260px;border-collapse:collapse;font-size:10.5pt}
+      .totals td{padding:5px 8px}
+      .totals td:last-child{text-align:right;font-weight:500}
+      .totals td:first-child{color:#555}
+      .totals tr.grand td{font-size:13pt;font-weight:700;color:#b91c1c;padding-top:10px;border-top:2px solid #b91c1c}
+      .footer{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:50px}
+      .sig-line{border-top:1px solid #555;padding-top:6px;text-align:center;font-size:9pt;color:#777;margin-top:40px}
+      .notes{margin-top:16px;padding:10px 14px;background:#fafafa;border-left:3px solid #b91c1c;font-size:9.5pt;color:#444}
+    </style>
+  </head><body>
+    <div class="header">
+      <div>
+        <div class="shop-name">${s.shopName}</div>
+        <div class="shop-info">
+          ${s.address?s.address+'<br>':''}
+          ${s.phone?'โทร. '+s.phone:''}
+          ${s.email?' | '+s.email:''}
+          ${s.taxId?'<br>เลขประจำตัวผู้เสียภาษี: '+s.taxId:''}
+        </div>
+      </div>
+      <div>
+        <div class="doc-type">ใบเสนอราคา</div>
+        <div class="doc-num">
+          เลขที่: <strong>${q.number}</strong><br>
+          วันที่: ${new Date(q.date).toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'})}<br>
+          ใช้ได้ถึง: ${q.validUntil?new Date(q.validUntil).toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'}):'-'}
+        </div>
+      </div>
+    </div>
+    <div class="cust-box">
+      <label>ลูกค้า / Customer</label>
+      <p><strong>${q.customerName||'-'}</strong></p>
+      ${q.customerPhone?`<p>โทร. ${q.customerPhone}</p>`:''}
+      ${q.customerAddress?`<p style="white-space:pre-line">${q.customerAddress}</p>`:''}
+    </div>
+    <table class="items">
+      <thead><tr>
+        <th style="width:32px;text-align:center">#</th>
+        <th>รายการ</th><th style="width:90px">รหัส</th>
+        <th style="width:50px;text-align:center">จำนวน</th>
+        <th style="width:40px;text-align:center">หน่วย</th>
+        <th style="width:90px;text-align:right">ราคา/หน่วย</th>
+        <th style="width:55px;text-align:center">ส่วนลด%</th>
+        <th style="width:100px;text-align:right">จำนวนเงิน</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div class="totals"><table>
+      <tr><td>ราคารวม</td><td>฿ ${fmt(q.subtotal)}</td></tr>
+      <tr><td>ส่วนลด</td><td>฿ ${fmt(q.discountAmount)}</td></tr>
+      <tr><td>ราคาหลังหักส่วนลด</td><td>฿ ${fmt(q.beforeVat)}</td></tr>
+      ${q.vatEnabled?`<tr><td>VAT ${q.vatRate}%</td><td>฿ ${fmt(q.vatAmount)}</td></tr>`:''}
+      <tr class="grand"><td>ยอดรวมทั้งสิ้น</td><td>฿ ${fmt(q.total)}</td></tr>
+    </table></div>
+    ${q.notes?`<div class="notes">หมายเหตุ: ${q.notes}</div>`:''}
+    ${s.paymentInfo?`<div class="notes" style="margin-top:8px">ข้อมูลการชำระเงิน: ${s.paymentInfo}</div>`:''}
+    <div class="footer">
+      <div><div class="sig-line">ลายเซ็นลูกค้า<br>(......................................................)</div></div>
+      <div><div class="sig-line">ลายเซ็นผู้มีอำนาจ<br>(......................................................)</div></div>
+    </div>
+    <script>window.onload=()=>window.print()<\/script>
+  </body></html>`;
+}
+
+function printById(id){
+  const q=DB.getQuotationById(id);
+  if(!q)return;
+  const w=window.open('','_blank');
+  w.document.write(buildPrintHtml(q));
+  w.document.close();
+}
+
+function printDoc(){
+  if(!editingId){alert('กรุณาบันทึกเอกสารก่อนพิมพ์');return;}
+  const q=DB.getQuotationById(editingId);
+  if(!q)return;
+  const w=window.open('','_blank');
+  w.document.write(buildPrintHtml(q));
+  w.document.close();
+}
+
+// ---- Parts Picker ----
+function openPicker(){
+  document.getElementById('picker-search').value='';
+  renderPicker();
+  document.getElementById('picker-modal').style.display='flex';
+}
+function closePicker(){ document.getElementById('picker-modal').style.display='none'; }
+
+function renderPicker(){
+  const q=(document.getElementById('picker-search').value||'').toLowerCase();
+  let parts=DB.getParts();
+  if(q) parts=parts.filter(p=>((p.name||'')+(p.code||'')).toLowerCase().includes(q));
+  const el=document.getElementById('picker-list');
+  if(!parts.length){el.innerHTML='<div class="text-center text-gray-400 py-8">ไม่พบอะไหล่</div>';return;}
+  el.innerHTML=parts.map(p=>`
+    <div class="part-pick-item" onclick="selectPart('${p.id}')">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="font-medium">${p.name}</span>
+          <span class="text-xs text-gray-400 ml-2">${p.code||''}</span>
+        </div>
+        <div class="text-sm text-right">
+          <div class="font-medium text-red-700">฿${fmt(p.salePrice)}</div>
+          <div class="text-xs text-gray-400">คงเหลือ ${p.stock||0} ${p.unit||'ชิ้น'}</div>
+        </div>
+      </div>
+      ${p.category?`<div class="text-xs text-gray-400 mt-1">${p.category}</div>`:''}
+    </div>`).join('');
+}
+
+function selectPart(id){
+  const p=DB.getParts().find(x=>x.id===id);
+  if(!p)return;
+  addItem(p);
+  closePicker();
+}
+
+// ---- Init ----
+renderList();
+
+// Pre-fill from repair job (sessionStorage)
+(function checkPrefill() {
+  const raw = sessionStorage.getItem('ka_prefill_qt');
+  if (!raw) return;
+  try {
+    const pre = JSON.parse(raw);
+    sessionStorage.removeItem('ka_prefill_qt');
+    showForm();
+    setTimeout(() => {
+      document.getElementById('f-name').value    = pre.customerName  || '';
+      document.getElementById('f-phone').value   = pre.customerPhone || '';
+      document.getElementById('f-address').value = pre.customerAddress || '';
+      const noteRef = pre.repairNumber ? `[อ้างอิงใบรับซ่อม ${pre.repairNumber}]\n${pre.machineInfo||''}` : (pre.machineInfo||'');
+      document.getElementById('f-notes').value = noteRef;
+    }, 50);
+  } catch(e) {}
+})();
+</script>
+</body>
+</html>

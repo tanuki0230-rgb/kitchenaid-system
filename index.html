@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>แดชบอร์ด - KitchenAid</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<nav class="bg-red-700 text-white shadow-lg no-print sticky top-0 z-40">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center justify-between h-14">
+      <a href="index.html" class="flex items-center gap-2 font-bold text-lg no-underline text-white">
+        <span class="text-2xl">🍳</span>
+        <span>KitchenAid</span>
+        <span class="text-xs font-normal opacity-70 hidden sm:inline">Service Center</span>
+      </a>
+      <div class="hidden md:flex gap-1">
+        <a href="index.html"      class="nav-link active">🏠 แดชบอร์ด</a>
+        <a href="repair.html"     class="nav-link">🔧 รับเครื่องซ่อม</a>
+        <a href="quotation.html"  class="nav-link">📄 ใบเสนอราคา</a>
+        <a href="invoice.html"    class="nav-link">🧾 บิล</a>
+        <a href="stock.html"      class="nav-link">📦 สต็อก</a>
+        <a href="settings.html"   class="nav-link">⚙️ ตั้งค่า</a>
+      </div>
+      <button onclick="document.getElementById('mnav').classList.toggle('hidden')" class="md:hidden p-2 rounded hover:bg-red-600">☰</button>
+    </div>
+    <div id="mnav" class="hidden md:hidden border-t border-red-600 py-2">
+      <a href="index.html"     class="block py-2 px-3 rounded hover:bg-red-600 mb-1">🏠 แดชบอร์ด</a>
+      <a href="repair.html"    class="block py-2 px-3 rounded hover:bg-red-600 mb-1">🔧 รับเครื่องซ่อม</a>
+      <a href="quotation.html" class="block py-2 px-3 rounded hover:bg-red-600 mb-1">📄 ใบเสนอราคา</a>
+      <a href="invoice.html"   class="block py-2 px-3 rounded hover:bg-red-600 mb-1">🧾 บิล</a>
+      <a href="stock.html"     class="block py-2 px-3 rounded hover:bg-red-600 mb-1">📦 สต็อก</a>
+      <a href="settings.html"  class="block py-2 px-3 rounded hover:bg-red-600">⚙️ ตั้งค่า</a>
+    </div>
+  </div>
+</nav>
+
+<main class="max-w-7xl mx-auto px-4 py-6">
+
+  <div class="mb-6 flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900" id="shop-title">KitchenAid Service Center</h1>
+      <p class="text-gray-500 text-sm mt-1">ภาพรวมระบบ</p>
+    </div>
+    <div class="text-sm text-gray-500" id="today-date"></div>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="stat-card">
+      <div class="flex items-start justify-between">
+        <div>
+          <div class="stat-lbl">ใบเสนอราคาทั้งหมด</div>
+          <div class="stat-val mt-1" id="s-qt">0</div>
+        </div>
+        <div class="stat-icon bg-blue-100">📄</div>
+      </div>
+      <a href="quotation.html" class="text-xs text-blue-600 mt-3 block hover:underline">ดูทั้งหมด →</a>
+    </div>
+    <div class="stat-card">
+      <div class="flex items-start justify-between">
+        <div>
+          <div class="stat-lbl">บิลทั้งหมด</div>
+          <div class="stat-val mt-1" id="s-inv">0</div>
+        </div>
+        <div class="stat-icon bg-green-100">🧾</div>
+      </div>
+      <a href="invoice.html" class="text-xs text-green-600 mt-3 block hover:underline">ดูทั้งหมด →</a>
+    </div>
+    <div class="stat-card">
+      <div class="flex items-start justify-between">
+        <div>
+          <div class="stat-lbl">ยอดรับเดือนนี้</div>
+          <div class="stat-val mt-1 text-green-600" id="s-revenue" style="font-size:1.4rem">฿0</div>
+        </div>
+        <div class="stat-icon bg-yellow-100">💰</div>
+      </div>
+      <div class="text-xs text-gray-400 mt-3">บิลที่ชำระแล้ว</div>
+    </div>
+    <div class="stat-card">
+      <div class="flex items-start justify-between">
+        <div>
+          <div class="stat-lbl">อะไหล่ใกล้หมด</div>
+          <div class="stat-val mt-1 text-red-600" id="s-low">0</div>
+        </div>
+        <div class="stat-icon bg-red-100">⚠️</div>
+      </div>
+      <a href="stock.html" class="text-xs text-red-600 mt-3 block hover:underline">ดูสต็อก →</a>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <!-- Recent Quotations -->
+    <div class="card">
+      <div class="card-header flex items-center justify-between">
+        <span>📄 ใบเสนอราคาล่าสุด</span>
+        <a href="quotation.html" class="text-sm text-red-600 hover:underline font-normal">ดูทั้งหมด</a>
+      </div>
+      <div class="tbl-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>เลขที่</th>
+              <th>ลูกค้า</th>
+              <th class="text-right">ยอดรวม</th>
+              <th>สถานะ</th>
+            </tr>
+          </thead>
+          <tbody id="recent-qt">
+            <tr><td colspan="4" class="text-center text-gray-400 py-8">ยังไม่มีข้อมูล</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Recent Invoices -->
+    <div class="card">
+      <div class="card-header flex items-center justify-between">
+        <span>🧾 บิลล่าสุด</span>
+        <a href="invoice.html" class="text-sm text-red-600 hover:underline font-normal">ดูทั้งหมด</a>
+      </div>
+      <div class="tbl-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>เลขที่</th>
+              <th>ลูกค้า</th>
+              <th class="text-right">ยอดรวม</th>
+              <th>สถานะ</th>
+            </tr>
+          </thead>
+          <tbody id="recent-inv">
+            <tr><td colspan="4" class="text-center text-gray-400 py-8">ยังไม่มีข้อมูล</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Low Stock Alert -->
+  <div class="card" id="low-card" style="display:none">
+    <div class="card-header flex items-center gap-2 text-red-700">
+      ⚠️ อะไหล่ใกล้หมด / หมดสต็อก
+    </div>
+    <div class="tbl-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>รหัส</th><th>ชื่ออะไหล่</th><th>หมวดหมู่</th>
+            <th class="text-right">คงเหลือ</th><th class="text-right">จุดสั่งซื้อ</th>
+          </tr>
+        </thead>
+        <tbody id="low-list"></tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<script src="js/db.js"></script>
+<script>
+  const fmt = (n, d=2) => Number(n||0).toLocaleString('th-TH',{minimumFractionDigits:d,maximumFractionDigits:d});
+  const qtStatus = {draft:'badge-draft',sent:'badge-sent',approved:'badge-approved',rejected:'badge-rejected',converted:'badge-converted'};
+  const invStatus = {unpaid:'badge-unpaid',paid:'badge-paid',overdue:'badge-overdue'};
+  const qtLabel  = {draft:'ร่าง',sent:'ส่งแล้ว',approved:'อนุมัติ',rejected:'ปฏิเสธ',converted:'แปลงเป็นบิล'};
+  const invLabel = {unpaid:'ค้างชำระ',paid:'ชำระแล้ว',overdue:'เกินกำหนด'};
+
+  function badge(s, type) {
+    if (type==='qt')  return `<span class="badge ${qtStatus[s]||'badge-draft'}">${qtLabel[s]||s}</span>`;
+    return `<span class="badge ${invStatus[s]||'badge-unpaid'}">${invLabel[s]||s}</span>`;
+  }
+
+  function init() {
+    const s = DB.getSettings();
+    document.getElementById('shop-title').textContent = s.shopName;
+    document.title = s.shopName + ' - แดชบอร์ด';
+
+    const now = new Date();
+    document.getElementById('today-date').textContent = now.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
+
+    const quotations = DB.getQuotations().sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
+    const invoices   = DB.getInvoices().sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
+    const parts      = DB.getParts();
+
+    document.getElementById('s-qt').textContent  = quotations.length;
+    document.getElementById('s-inv').textContent = invoices.length;
+
+    const mo = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+    const rev = invoices.filter(i=>i.status==='paid'&&i.paidAt&&i.paidAt.startsWith(mo)).reduce((s,i)=>s+(i.total||0),0);
+    document.getElementById('s-revenue').textContent = '฿'+fmt(rev);
+
+    const low = parts.filter(p=>(p.stock||0)<=(p.minStock||0));
+    document.getElementById('s-low').textContent = low.length;
+
+    // Recent QT
+    const qtBody = document.getElementById('recent-qt');
+    qtBody.innerHTML = quotations.length===0
+      ? '<tr><td colspan="4" class="text-center text-gray-400 py-8">ยังไม่มีข้อมูล</td></tr>'
+      : quotations.slice(0,5).map(q=>`
+          <tr>
+            <td class="font-mono text-sm text-blue-600">${q.number}</td>
+            <td class="text-sm">${q.customerName||'-'}</td>
+            <td class="text-right text-sm">฿${fmt(q.total)}</td>
+            <td>${badge(q.status,'qt')}</td>
+          </tr>`).join('');
+
+    // Recent INV
+    const invBody = document.getElementById('recent-inv');
+    invBody.innerHTML = invoices.length===0
+      ? '<tr><td colspan="4" class="text-center text-gray-400 py-8">ยังไม่มีข้อมูล</td></tr>'
+      : invoices.slice(0,5).map(i=>`
+          <tr>
+            <td class="font-mono text-sm text-blue-600">${i.number}</td>
+            <td class="text-sm">${i.customerName||'-'}</td>
+            <td class="text-right text-sm">฿${fmt(i.total)}</td>
+            <td>${badge(i.status,'inv')}</td>
+          </tr>`).join('');
+
+    // Low stock
+    if (low.length>0) {
+      document.getElementById('low-card').style.display='';
+      document.getElementById('low-list').innerHTML = low.map(p=>`
+        <tr class="${p.stock===0?'row-nostock':'row-lowstock'}">
+          <td class="font-mono text-sm">${p.code||'-'}</td>
+          <td class="text-sm">${p.name}</td>
+          <td class="text-sm text-gray-500">${p.category||'-'}</td>
+          <td class="text-right text-sm font-bold ${p.stock===0?'text-red-600':'text-yellow-600'}">${p.stock||0} ${p.unit||'ชิ้น'}</td>
+          <td class="text-right text-sm text-gray-400">${p.minStock||0} ${p.unit||'ชิ้น'}</td>
+        </tr>`).join('');
+    }
+  }
+  init();
+</script>
+</body>
+</html>

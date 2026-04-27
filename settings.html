@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ตั้งค่า - KitchenAid</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<nav class="bg-red-700 text-white shadow-lg sticky top-0 z-40">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center justify-between h-14">
+      <a href="index.html" class="flex items-center gap-2 font-bold text-lg text-white no-underline">
+        <span class="text-2xl">🍳</span><span>KitchenAid</span>
+      </a>
+      <div class="hidden md:flex gap-1">
+        <a href="index.html"      class="nav-link">🏠 แดชบอร์ด</a>
+        <a href="repair.html"     class="nav-link">🔧 รับเครื่องซ่อม</a>
+        <a href="quotation.html"  class="nav-link">📄 ใบเสนอราคา</a>
+        <a href="invoice.html"    class="nav-link">🧾 บิล</a>
+        <a href="stock.html"      class="nav-link">📦 สต็อก</a>
+        <a href="settings.html"   class="nav-link active">⚙️ ตั้งค่า</a>
+      </div>
+      <button onclick="document.getElementById('mnav').classList.toggle('hidden')" class="md:hidden p-2 rounded hover:bg-red-600">☰</button>
+    </div>
+    <div id="mnav" class="hidden md:hidden border-t border-red-600 py-2">
+      <a href="index.html"     class="block py-2 px-3 rounded hover:bg-red-600 mb-1">🏠 แดชบอร์ด</a>
+      <a href="repair.html"    class="block py-2 px-3 rounded hover:bg-red-600 mb-1">🔧 รับเครื่องซ่อม</a>
+      <a href="quotation.html" class="block py-2 px-3 rounded hover:bg-red-600 mb-1">📄 ใบเสนอราคา</a>
+      <a href="invoice.html"   class="block py-2 px-3 rounded hover:bg-red-600 mb-1">🧾 บิล</a>
+      <a href="stock.html"     class="block py-2 px-3 rounded hover:bg-red-600 mb-1">📦 สต็อก</a>
+      <a href="settings.html"  class="block py-2 px-3 rounded hover:bg-red-600">⚙️ ตั้งค่า</a>
+    </div>
+  </div>
+</nav>
+
+<main class="max-w-3xl mx-auto px-4 py-6">
+  <div class="mb-6">
+    <h1 class="text-xl font-bold text-gray-900">⚙️ ตั้งค่าระบบ</h1>
+    <p class="text-sm text-gray-500 mt-0.5">ข้อมูลร้านและการตั้งค่าทั่วไป</p>
+  </div>
+
+  <div id="toast" class="alert alert-success" style="display:none">✅ บันทึกการตั้งค่าเรียบร้อยแล้ว</div>
+
+  <div class="card mb-4">
+    <div class="card-header">🏪 ข้อมูลร้าน</div>
+    <div class="p-5 space-y-4">
+      <div>
+        <label class="form-label">ชื่อร้าน / บริษัท <span class="text-red-500">*</span></label>
+        <input id="s-name" class="form-input" placeholder="KitchenAid Service Center">
+      </div>
+      <div>
+        <label class="form-label">ที่อยู่</label>
+        <textarea id="s-address" class="form-input" rows="3" placeholder="เลขที่ ถนน แขวง/ตำบล เขต/อำเภอ จังหวัด รหัสไปรษณีย์"></textarea>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="form-label">เบอร์โทรศัพท์</label>
+          <input id="s-phone" class="form-input" placeholder="02-xxx-xxxx" type="tel">
+        </div>
+        <div>
+          <label class="form-label">อีเมล</label>
+          <input id="s-email" class="form-input" placeholder="info@example.com" type="email">
+        </div>
+      </div>
+      <div>
+        <label class="form-label">เลขประจำตัวผู้เสียภาษี</label>
+        <input id="s-taxid" class="form-input" placeholder="0000000000000" maxlength="13">
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header">💰 การตั้งค่าการเงิน</div>
+    <div class="p-5 space-y-4">
+      <div>
+        <label class="form-label">อัตราภาษีมูลค่าเพิ่ม (VAT %)</label>
+        <div class="flex items-center gap-3">
+          <input id="s-vat" class="form-input" type="number" min="0" max="100" step="0.1" style="max-width:120px">
+          <span class="text-sm text-gray-500">% (ค่าเริ่มต้น 7%)</span>
+        </div>
+      </div>
+      <div>
+        <label class="form-label">ข้อมูลการชำระเงิน (แสดงในบิล)</label>
+        <textarea id="s-payment" class="form-input" rows="3" placeholder="ธนาคาร: กสิกรไทย&#10;ชื่อบัญชี: ...&#10;เลขที่บัญชี: ..."></textarea>
+        <p class="text-xs text-gray-400 mt-1">ข้อมูลนี้จะแสดงในใบเสนอราคาและบิลเมื่อพิมพ์</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header">🗄️ จัดการข้อมูล</div>
+    <div class="p-5 space-y-4">
+      <div class="flex flex-wrap gap-3">
+        <button class="btn btn-info btn-sm" onclick="exportData()">📥 Export ข้อมูล (JSON)</button>
+        <label class="btn btn-secondary btn-sm cursor-pointer">
+          📤 Import ข้อมูล (JSON)
+          <input type="file" accept=".json" style="display:none" onchange="importData(event)">
+        </label>
+      </div>
+      <div class="border-t pt-4">
+        <p class="text-sm text-gray-600 mb-3">⚠️ โซนอันตราย: ลบข้อมูลทั้งหมด</p>
+        <div class="flex flex-wrap gap-2">
+          <button class="btn btn-danger btn-sm" onclick="clearData('ka_quotations','ใบเสนอราคา')">ลบใบเสนอราคาทั้งหมด</button>
+          <button class="btn btn-danger btn-sm" onclick="clearData('ka_invoices','บิล')">ลบบิลทั้งหมด</button>
+          <button class="btn btn-danger btn-sm" onclick="clearData('ka_parts','อะไหล่')">ลบสต็อกอะไหล่ทั้งหมด</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex justify-end gap-3">
+    <a href="index.html" class="btn btn-secondary">ยกเลิก</a>
+    <button class="btn btn-primary" onclick="saveSettings()">💾 บันทึกการตั้งค่า</button>
+  </div>
+</main>
+
+<script src="js/db.js"></script>
+<script>
+function loadSettings(){
+  const s=DB.getSettings();
+  document.getElementById('s-name').value=s.shopName||'';
+  document.getElementById('s-address').value=s.address||'';
+  document.getElementById('s-phone').value=s.phone||'';
+  document.getElementById('s-email').value=s.email||'';
+  document.getElementById('s-taxid').value=s.taxId||'';
+  document.getElementById('s-vat').value=s.vatRate!=null?s.vatRate:7;
+  document.getElementById('s-payment').value=s.paymentInfo||'';
+}
+
+function saveSettings(){
+  const name=document.getElementById('s-name').value.trim();
+  if(!name){alert('กรุณากรอกชื่อร้าน');document.getElementById('s-name').focus();return;}
+  DB.saveSettings({
+    shopName:name,
+    address:document.getElementById('s-address').value.trim(),
+    phone:document.getElementById('s-phone').value.trim(),
+    email:document.getElementById('s-email').value.trim(),
+    taxId:document.getElementById('s-taxid').value.trim(),
+    vatRate:parseFloat(document.getElementById('s-vat').value)||7,
+    paymentInfo:document.getElementById('s-payment').value.trim(),
+  });
+  const toast=document.getElementById('toast');
+  toast.style.display='block';
+  setTimeout(()=>toast.style.display='none',3000);
+}
+
+function exportData(){
+  const data={
+    settings:DB.getSettings(),
+    parts:DB.getParts(),
+    quotations:DB.getQuotations(),
+    invoices:DB.getInvoices(),
+    exportedAt:new Date().toISOString(),
+  };
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`kitchenaid-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+}
+
+function importData(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const data=JSON.parse(ev.target.result);
+      if(!confirm('การ Import จะเขียนทับข้อมูลปัจจุบัน ยืนยัน?'))return;
+      if(data.settings) DB.saveSettings(data.settings);
+      if(data.parts)     localStorage.setItem('ka_parts',JSON.stringify(data.parts));
+      if(data.quotations)localStorage.setItem('ka_quotations',JSON.stringify(data.quotations));
+      if(data.invoices)  localStorage.setItem('ka_invoices',JSON.stringify(data.invoices));
+      loadSettings();
+      alert('Import สำเร็จ');
+    }catch(err){alert('ไฟล์ไม่ถูกต้อง: '+err.message);}
+  };
+  reader.readAsText(file);
+  e.target.value='';
+}
+
+function clearData(key,label){
+  if(!confirm(`ยืนยันการลบ${label}ทั้งหมด? ไม่สามารถกู้คืนได้`))return;
+  localStorage.removeItem(key);
+  alert(`ลบ${label}ทั้งหมดเรียบร้อย`);
+}
+
+loadSettings();
+</script>
+</body>
+</html>

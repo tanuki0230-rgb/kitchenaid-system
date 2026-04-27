@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>แจ้งส่งซ่อมเครื่อง KitchenAid</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+    * { box-sizing: border-box; }
+    body { font-family: 'Sarabun', sans-serif; background: #f9fafb; }
+
+    .step-dot {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.85rem; transition: all 0.3s;
+    }
+    .step-line { flex: 1; height: 2px; transition: all 0.3s; }
+
+    .form-label { display: block; font-size: 0.9rem; font-weight: 600; color: #374151; margin-bottom: 6px; }
+    .form-input {
+      width: 100%; padding: 12px 14px;
+      border: 1.5px solid #d1d5db; border-radius: 10px;
+      font-size: 1rem; font-family: 'Sarabun', sans-serif;
+      outline: none; transition: border-color 0.15s; background: white;
+      -webkit-appearance: none;
+    }
+    .form-input:focus { border-color: #b91c1c; box-shadow: 0 0 0 3px rgba(185,28,28,0.1); }
+    .form-input.error { border-color: #dc2626; }
+    textarea.form-input { resize: none; }
+
+    .btn-main {
+      width: 100%; padding: 14px;
+      background: #b91c1c; color: white;
+      border: none; border-radius: 12px;
+      font-size: 1rem; font-weight: 600;
+      font-family: 'Sarabun', sans-serif;
+      cursor: pointer; transition: all 0.15s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-main:hover { background: #991b1b; }
+    .btn-main:active { transform: scale(0.98); }
+    .btn-outline {
+      width: 100%; padding: 12px;
+      background: white; color: #374151;
+      border: 1.5px solid #d1d5db; border-radius: 12px;
+      font-size: 1rem; font-family: 'Sarabun', sans-serif;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .btn-outline:hover { background: #f3f4f6; }
+
+    .card { background: white; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); padding: 20px; }
+    .code-box {
+      background: #1e293b; color: #a3e635; font-family: monospace;
+      border-radius: 12px; padding: 16px; font-size: 1rem; word-break: break-all;
+      letter-spacing: 0.05em; text-align: center; line-height: 1.6;
+    }
+    .required::after { content: ' *'; color: #dc2626; }
+    .field-group { margin-bottom: 18px; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in { animation: fadeIn 0.3s ease; }
+
+    @keyframes success-pop { 0%{transform:scale(0.5);opacity:0} 70%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
+    .success-icon { animation: success-pop 0.5s ease; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- Header -->
+  <div class="bg-red-700 text-white px-4 py-5 text-center">
+    <div class="text-3xl mb-1">🍳</div>
+    <h1 class="text-xl font-bold">KitchenAid Service Center</h1>
+    <p class="text-sm opacity-80 mt-1">แบบฟอร์มแจ้งส่งซ่อมเครื่อง</p>
+  </div>
+
+  <!-- Step Indicator -->
+  <div class="flex items-center px-6 py-4 max-w-md mx-auto" id="step-indicator">
+    <div class="step-dot bg-red-700 text-white" id="dot-1">1</div>
+    <div class="step-line bg-gray-200" id="line-1"></div>
+    <div class="step-dot bg-gray-200 text-gray-400" id="dot-2">2</div>
+    <div class="step-line bg-gray-200" id="line-2"></div>
+    <div class="step-dot bg-gray-200 text-gray-400" id="dot-3">✓</div>
+  </div>
+  <div class="flex px-6 max-w-md mx-auto text-xs text-gray-500 mb-4" style="justify-content:space-between">
+    <span>ข้อมูลส่วนตัว</span>
+    <span>ข้อมูลเครื่อง</span>
+    <span>สำเร็จ</span>
+  </div>
+
+  <div class="max-w-md mx-auto px-4 pb-10">
+
+    <!-- ===== STEP 1: Personal Info ===== -->
+    <div id="step1" class="fade-in">
+      <div class="card mb-4">
+        <h2 class="font-bold text-gray-900 mb-4 text-lg">👤 ข้อมูลของคุณ</h2>
+
+        <div class="field-group">
+          <label class="form-label required">ชื่อ-นามสกุล</label>
+          <input id="c-name" class="form-input" placeholder="ชื่อ นามสกุล" autocomplete="name">
+        </div>
+        <div class="field-group">
+          <label class="form-label required">เบอร์โทรศัพท์</label>
+          <input id="c-phone" class="form-input" type="tel" placeholder="08x-xxx-xxxx" autocomplete="tel">
+        </div>
+        <div class="field-group">
+          <label class="form-label">อีเมล</label>
+          <input id="c-email" class="form-input" type="email" placeholder="email@example.com" autocomplete="email">
+        </div>
+        <div class="field-group" style="margin-bottom:0">
+          <label class="form-label required">ที่อยู่สำหรับจัดส่งเครื่องคืน</label>
+          <textarea id="c-address" class="form-input" rows="3"
+            placeholder="บ้านเลขที่ ถนน ตำบล/แขวง อำเภอ/เขต จังหวัด รหัสไปรษณีย์"></textarea>
+        </div>
+      </div>
+      <button class="btn-main" onclick="goStep2()">ถัดไป →</button>
+    </div>
+
+    <!-- ===== STEP 2: Machine Info ===== -->
+    <div id="step2" style="display:none" class="fade-in">
+      <div class="card mb-4">
+        <h2 class="font-bold text-gray-900 mb-4 text-lg">🍳 ข้อมูลเครื่อง</h2>
+
+        <div class="field-group">
+          <label class="form-label required">รุ่นเครื่อง</label>
+          <input id="c-model" class="form-input" placeholder="เช่น KSM150, KSM7, KSM3311X..." list="model-list">
+          <datalist id="model-list">
+            <option value="KSM150 Artisan (4.8L)">
+            <option value="KSM3311X Artisan Mini (3.3L)">
+            <option value="KSM195 Artisan Design (4.8L)">
+            <option value="KSM7 Pro Line (6.9L)">
+            <option value="KSM8 Commercial (10.4L)">
+            <option value="KSM75 Ultra Power (4.3L)">
+            <option value="KSM90 Classic (4.3L)">
+            <option value="KSM500 Pro 500 (4.8L)">
+            <option value="KSM600 Pro 600 (5.7L)">
+            <option value="KHM5 Hand Mixer 5Speed">
+            <option value="KHM7 Hand Mixer 7Speed">
+            <option value="KHM9 Hand Mixer 9Speed">
+          </datalist>
+          <p class="text-xs text-gray-400 mt-1">ดูได้จากสติ๊กเกอร์ใต้เครื่องหรือในกล่อง</p>
+        </div>
+        <div class="field-group">
+          <label class="form-label">สีเครื่อง</label>
+          <input id="c-color" class="form-input" placeholder="เช่น Empire Red, Silver, White..." list="color-list">
+          <datalist id="color-list">
+            <option value="Empire Red (แดง)">
+            <option value="Silver (เงิน)">
+            <option value="White (ขาว)">
+            <option value="Black (ดำ)">
+            <option value="Contour Silver (เงินเข้ม)">
+            <option value="Ice Blue (ฟ้า)">
+            <option value="Pistachio (เขียว)">
+            <option value="Almond Cream (ครีม)">
+            <option value="Misty Blue (น้ำเงิน)">
+            <option value="Hibiscus (ชมพู)">
+          </datalist>
+        </div>
+        <div class="field-group">
+          <label class="form-label required">อาการเสีย / ปัญหาที่พบ</label>
+          <textarea id="c-symptoms" class="form-input" rows="4"
+            placeholder="อธิบายอาการเสียให้ละเอียด เช่น&#10;- มอเตอร์ไม่หมุน&#10;- เสียงดังผิดปกติขณะเปิดเครื่อง&#10;- ความเร็วสปีดไม่ทำงาน&#10;- ชาม/อุปกรณ์แตก หัก ชำรุด"></textarea>
+        </div>
+        <div class="field-group" style="margin-bottom:0">
+          <label class="form-label">ของที่ส่งมาพร้อมเครื่อง</label>
+          <textarea id="c-accessories" class="form-input" rows="2"
+            placeholder="เช่น ชาม, ตะกร้อ, paddle, hook, สายไฟ..."></textarea>
+        </div>
+      </div>
+
+      <!-- Summary preview -->
+      <div class="card mb-4 bg-gray-50" id="summary-preview" style="display:none">
+        <h3 class="font-semibold text-gray-700 mb-3 text-sm">📋 ตรวจสอบข้อมูลก่อนส่ง</h3>
+        <div id="summary-content" class="text-sm text-gray-600 space-y-1"></div>
+      </div>
+
+      <div class="flex gap-3">
+        <button class="btn-outline" style="width:auto;padding:12px 20px" onclick="goStep1()">← ย้อนกลับ</button>
+        <button class="btn-main" style="flex:1" onclick="submitForm()">📤 ส่งข้อมูล</button>
+      </div>
+    </div>
+
+    <!-- ===== STEP 3: Success ===== -->
+    <div id="step3" style="display:none" class="fade-in">
+      <div class="card text-center mb-4">
+        <div class="text-5xl mb-3 success-icon">✅</div>
+        <h2 class="text-xl font-bold text-gray-900 mb-1">ส่งข้อมูลสำเร็จแล้ว!</h2>
+        <p class="text-gray-500 text-sm">ทางร้านจะติดต่อกลับเพื่อยืนยันรับเครื่อง</p>
+      </div>
+
+      <div class="card mb-4">
+        <h3 class="font-bold text-gray-800 mb-2">🔑 รหัสงานซ่อมของคุณ</h3>
+        <p class="text-xs text-gray-500 mb-3">โปรดส่งรหัสนี้ให้ทางร้านผ่าน LINE / WhatsApp เพื่อให้ทางร้านเปิดงานซ่อม</p>
+        <div class="code-box mb-3" id="result-code">–</div>
+        <button class="btn-main mb-2" onclick="copyCode()">
+          <span id="copy-icon">📋</span> <span id="copy-label">คัดลอกรหัส</span>
+        </button>
+        <button class="btn-outline" onclick="shareCode()">📱 แชร์ผ่านแอป</button>
+      </div>
+
+      <div class="card mb-4 bg-blue-50 border border-blue-200">
+        <h3 class="font-semibold text-blue-800 mb-2 text-sm">📦 ขั้นตอนต่อไป</h3>
+        <ol class="text-sm text-blue-700 space-y-2 pl-4" style="list-style:decimal">
+          <li>ส่ง<strong>รหัสงานซ่อม</strong>ข้างบนให้ทางร้านผ่าน LINE/WhatsApp</li>
+          <li>ทางร้านจะแจ้งที่อยู่และวิธีการจัดส่ง</li>
+          <li>แพ็คเครื่องให้มิดชิด แล้วจัดส่งพัสดุตามที่แจ้ง</li>
+          <li>เมื่อเครื่องถึงร้าน จะแจ้งผลการตรวจสอบและใบเสนอราคา</li>
+        </ol>
+      </div>
+
+      <div class="card bg-amber-50 border border-amber-200 mb-4">
+        <p class="text-sm text-amber-800">
+          ⚠️ <strong>คำแนะนำการส่ง:</strong> กรุณาแพ็คเครื่องในกล่องแข็งแรง ห่อด้วยฟองน้ำหรือกระดาษฟองแอร์ให้มิดชิด
+          เพื่อป้องกันความเสียหายระหว่างขนส่ง
+        </p>
+      </div>
+
+      <button class="btn-outline" onclick="resetForm()">📝 แจ้งซ่อมเครื่องอื่น</button>
+    </div>
+
+  </div><!-- /container -->
+
+<script>
+// ---- Encode / Decode ----
+function encode(data) {
+  try { return btoa(unescape(encodeURIComponent(JSON.stringify(data)))); }
+  catch(e) { return btoa(JSON.stringify(data)); }
+}
+function decode(str) {
+  try { return JSON.parse(decodeURIComponent(escape(atob(str)))); }
+  catch(e) { return JSON.parse(atob(str)); }
+}
+
+// ---- Step Navigation ----
+function setStepUI(step) {
+  const dots  = [document.getElementById('dot-1'),document.getElementById('dot-2'),document.getElementById('dot-3')];
+  const lines = [document.getElementById('line-1'),document.getElementById('line-2')];
+  dots.forEach((d,i) => {
+    if (i+1 < step)       { d.className='step-dot bg-green-500 text-white'; d.textContent='✓'; }
+    else if (i+1 === step) { d.className='step-dot bg-red-700 text-white'; d.textContent = i===2?'✓':String(i+1); }
+    else                   { d.className='step-dot bg-gray-200 text-gray-400'; d.textContent = i===2?'✓':String(i+1); }
+  });
+  lines.forEach((l,i) => l.className = 'step-line ' + (i+1 < step ? 'bg-green-500' : 'bg-gray-200'));
+  if (step === 3) document.getElementById('step-indicator').style.display='none';
+  else document.getElementById('step-indicator').style.display='flex';
+}
+
+function showSection(id) {
+  ['step1','step2','step3'].forEach(s => {
+    const el = document.getElementById(s);
+    el.style.display = s===id ? '' : 'none';
+    if (s===id) el.classList.add('fade-in');
+  });
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function goStep1() { setStepUI(1); showSection('step1'); }
+
+function goStep2() {
+  const name    = document.getElementById('c-name').value.trim();
+  const phone   = document.getElementById('c-phone').value.trim();
+  const address = document.getElementById('c-address').value.trim();
+  let ok = true;
+  [['c-name',name,'ชื่อ-นามสกุล'],['c-phone',phone,'เบอร์โทรศัพท์'],['c-address',address,'ที่อยู่จัดส่ง']].forEach(([id,v,label])=>{
+    const el = document.getElementById(id);
+    if (!v) { el.classList.add('error'); if(ok){ alert(`กรุณากรอก${label}`); el.focus(); } ok=false; }
+    else el.classList.remove('error');
+  });
+  if (!ok) return;
+  setStepUI(2); showSection('step2');
+}
+
+function submitForm() {
+  const model    = document.getElementById('c-model').value.trim();
+  const symptoms = document.getElementById('c-symptoms').value.trim();
+  let ok = true;
+  [['c-model',model,'รุ่นเครื่อง'],['c-symptoms',symptoms,'อาการเสีย']].forEach(([id,v,label])=>{
+    const el = document.getElementById(id);
+    if (!v) { el.classList.add('error'); if(ok){ alert(`กรุณากรอก${label}`); el.focus(); } ok=false; }
+    else el.classList.remove('error');
+  });
+  if (!ok) return;
+
+  const data = {
+    v: 1,
+    submittedAt    : new Date().toISOString(),
+    customerName   : document.getElementById('c-name').value.trim(),
+    customerPhone  : document.getElementById('c-phone').value.trim(),
+    customerEmail  : document.getElementById('c-email').value.trim(),
+    customerAddress: document.getElementById('c-address').value.trim(),
+    model,
+    color          : document.getElementById('c-color').value.trim(),
+    symptoms,
+    accessories    : document.getElementById('c-accessories').value.trim(),
+  };
+
+  const code = 'KA:' + encode(data);
+  document.getElementById('result-code').textContent = code;
+  window._repairCode = code;
+  window._repairData = data;
+
+  setStepUI(3); showSection('step3');
+}
+
+// ---- Copy & Share ----
+function copyCode() {
+  const code = window._repairCode || document.getElementById('result-code').textContent;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(code).then(() => flashCopied());
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = code;
+    document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+    flashCopied();
+  }
+}
+
+function flashCopied() {
+  document.getElementById('copy-icon').textContent = '✅';
+  document.getElementById('copy-label').textContent = 'คัดลอกแล้ว!';
+  setTimeout(()=>{
+    document.getElementById('copy-icon').textContent = '📋';
+    document.getElementById('copy-label').textContent = 'คัดลอกรหัส';
+  }, 2000);
+}
+
+function shareCode() {
+  const d = window._repairData || {};
+  const text = `🔧 แจ้งซ่อมเครื่อง KitchenAid\n`
+    + `ชื่อ: ${d.customerName||''}\n`
+    + `โทร: ${d.customerPhone||''}\n`
+    + `รุ่น: ${d.model||''} ${d.color?'/ '+d.color:''}\n`
+    + `อาการ: ${d.symptoms||''}\n\n`
+    + `รหัสงานซ่อม:\n${window._repairCode||''}`;
+  if (navigator.share) {
+    navigator.share({ title: 'แจ้งซ่อม KitchenAid', text }).catch(()=>copyCode());
+  } else {
+    copyCode();
+    alert('ระบบ Share ไม่รองรับบนอุปกรณ์นี้ — คัดลอกรหัสแล้ว สามารถวางและส่งได้เลย');
+  }
+}
+
+function resetForm() {
+  ['c-name','c-phone','c-email','c-address','c-model','c-color','c-symptoms','c-accessories']
+    .forEach(id => document.getElementById(id).value = '');
+  goStep1();
+}
+</script>
+</body>
+</html>
