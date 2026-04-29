@@ -28,6 +28,7 @@
     .form-input:focus { border-color: #b91c1c; box-shadow: 0 0 0 3px rgba(185,28,28,0.1); }
     .form-input.error { border-color: #dc2626; }
     textarea.form-input { resize: none; }
+    select.form-input { -webkit-appearance: auto; appearance: auto; cursor: pointer; }
 
     .btn-main {
       width: 100%; padding: 14px;
@@ -123,38 +124,51 @@
 
         <div class="field-group">
           <label class="form-label required">รุ่นเครื่อง</label>
-          <input id="c-model" class="form-input" placeholder="เช่น KSM150, KSM7, KSM3311X..." list="model-list">
-          <datalist id="model-list">
-            <option value="KSM150 Artisan (4.8L)">
-            <option value="KSM3311X Artisan Mini (3.3L)">
-            <option value="KSM195 Artisan Design (4.8L)">
-            <option value="KSM7 Pro Line (6.9L)">
-            <option value="KSM8 Commercial (10.4L)">
-            <option value="KSM75 Ultra Power (4.3L)">
-            <option value="KSM90 Classic (4.3L)">
-            <option value="KSM500 Pro 500 (4.8L)">
-            <option value="KSM600 Pro 600 (5.7L)">
-            <option value="KHM5 Hand Mixer 5Speed">
-            <option value="KHM7 Hand Mixer 7Speed">
-            <option value="KHM9 Hand Mixer 9Speed">
-          </datalist>
+          <select id="c-model" class="form-input">
+            <option value="">-- เลือกรุ่นเครื่อง --</option>
+            <optgroup label="Heavy Duty (Bowl-Lift)">
+              <option value="5KPM5 Heavy Duty (4.8L)">5KPM5 Heavy Duty (4.8L)</option>
+              <option value="KP26M1X Professional 600 (5.7L)">KP26M1X Professional 600 (5.7L)</option>
+              <option value="KV25G0X Professional 5 Plus (4.7L)">KV25G0X Professional 5 Plus (4.7L)</option>
+            </optgroup>
+            <optgroup label="Artisan (Tilt-Head)">
+              <option value="KSM150 Artisan (4.8L)">KSM150 Artisan (4.8L)</option>
+              <option value="KSM3311X Artisan Mini (3.3L)">KSM3311X Artisan Mini (3.3L)</option>
+              <option value="KSM195 Artisan Design (4.8L)">KSM195 Artisan Design (4.8L)</option>
+              <option value="KSM7 Pro Line (6.9L)">KSM7 Pro Line (6.9L)</option>
+              <option value="KSM8 Commercial (10.4L)">KSM8 Commercial (10.4L)</option>
+              <option value="KSM75 Ultra Power (4.3L)">KSM75 Ultra Power (4.3L)</option>
+              <option value="KSM90 Classic (4.3L)">KSM90 Classic (4.3L)</option>
+              <option value="KSM500 Pro 500 (4.8L)">KSM500 Pro 500 (4.8L)</option>
+              <option value="KSM600 Pro 600 (5.7L)">KSM600 Pro 600 (5.7L)</option>
+            </optgroup>
+            <optgroup label="Hand Mixer">
+              <option value="KHM5 Hand Mixer 5Speed">KHM5 Hand Mixer 5Speed</option>
+              <option value="KHM7 Hand Mixer 7Speed">KHM7 Hand Mixer 7Speed</option>
+              <option value="KHM9 Hand Mixer 9Speed">KHM9 Hand Mixer 9Speed</option>
+            </optgroup>
+          </select>
           <p class="text-xs text-gray-400 mt-1">ดูได้จากสติ๊กเกอร์ใต้เครื่องหรือในกล่อง</p>
         </div>
         <div class="field-group">
           <label class="form-label">สีเครื่อง</label>
-          <input id="c-color" class="form-input" placeholder="เช่น Empire Red, Silver, White..." list="color-list">
-          <datalist id="color-list">
-            <option value="Empire Red (แดง)">
-            <option value="Silver (เงิน)">
-            <option value="White (ขาว)">
-            <option value="Black (ดำ)">
-            <option value="Contour Silver (เงินเข้ม)">
-            <option value="Ice Blue (ฟ้า)">
-            <option value="Pistachio (เขียว)">
-            <option value="Almond Cream (ครีม)">
-            <option value="Misty Blue (น้ำเงิน)">
-            <option value="Hibiscus (ชมพู)">
-          </datalist>
+          <select id="c-color" class="form-input" onchange="toggleColorOther(this)">
+            <option value="">-- เลือกสีเครื่อง --</option>
+            <option value="Empire Red">Empire Red (แดง)</option>
+            <option value="Contour Silver">Contour Silver (เงิน)</option>
+            <option value="Onyx Black">Onyx Black (ดำ)</option>
+            <option value="Ice Blue">Ice Blue (ฟ้า)</option>
+            <option value="Hibiscus">Hibiscus (ชมพู)</option>
+            <option value="Pistachio">Pistachio (เขียว)</option>
+            <option value="White">White (ขาว)</option>
+            <option value="Imperial Grey">Imperial Grey (เทา)</option>
+            <option value="Matte Black">Matte Black (ดำด้าน)</option>
+            <option value="Blue Velvet">Blue Velvet (น้ำเงิน)</option>
+            <option value="Beetroot">Beetroot (ม่วงแดง)</option>
+            <option value="Honeydew">Honeydew (เขียวอ่อน)</option>
+            <option value="__other__">อื่นๆ (โปรดระบุ)</option>
+          </select>
+          <input id="c-color-other" class="form-input mt-2" placeholder="ระบุสีเครื่อง..." style="display:none">
         </div>
         <div class="field-group">
           <label class="form-label required">อาการเสีย / ปัญหาที่พบ</label>
@@ -300,7 +314,9 @@ function submitForm() {
     customerEmail  : document.getElementById('c-email').value.trim(),
     customerAddress: document.getElementById('c-address').value.trim(),
     model,
-    color          : document.getElementById('c-color').value.trim(),
+    color          : document.getElementById('c-color').value === '__other__'
+                     ? document.getElementById('c-color-other').value.trim()
+                     : document.getElementById('c-color').value,
     symptoms,
     accessories    : document.getElementById('c-accessories').value.trim(),
   };
@@ -370,7 +386,15 @@ function shareCode() {
 function resetForm() {
   ['c-name','c-phone','c-email','c-address','c-model','c-color','c-symptoms','c-accessories']
     .forEach(id => document.getElementById(id).value = '');
+  document.getElementById('c-color-other').style.display = 'none';
+  document.getElementById('c-color-other').value = '';
   goStep1();
+}
+
+function toggleColorOther(sel) {
+  const other = document.getElementById('c-color-other');
+  other.style.display = sel.value === '__other__' ? '' : 'none';
+  if (sel.value === '__other__') other.focus();
 }
 
 function showShippingModal() {
