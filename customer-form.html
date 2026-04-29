@@ -201,18 +201,29 @@
       <div class="card mb-4 bg-blue-50 border border-blue-200">
         <h3 class="font-semibold text-blue-800 mb-2 text-sm">📦 ขั้นตอนต่อไป</h3>
         <ol class="text-sm text-blue-700 space-y-2 pl-4" style="list-style:decimal">
-          <li>ส่ง<strong>รหัสงานซ่อม</strong>ข้างบนให้ทางร้านผ่าน LINE/WhatsApp</li>
-          <li>ทางร้านจะแจ้งที่อยู่และวิธีการจัดส่ง</li>
-          <li>แพ็คเครื่องให้มิดชิด แล้วจัดส่งพัสดุตามที่แจ้ง</li>
+          <li>ส่ง<strong>รหัสงานซ่อม</strong>ข้างบนให้ทางร้านผ่าน LINE/Facebook</li>
+          <li><button onclick="showShippingModal()" class="underline font-semibold text-blue-800 text-left">ดูที่อยู่และวิธีการจัดส่ง →</button></li>
+          <li><button onclick="showPackingModal()" class="underline font-semibold text-blue-800 text-left">ดูวิธีแพ็คเครื่องก่อนส่ง →</button></li>
           <li>เมื่อเครื่องถึงร้าน จะแจ้งผลการตรวจสอบและใบเสนอราคา</li>
         </ol>
       </div>
 
       <div class="card bg-amber-50 border border-amber-200 mb-4">
         <p class="text-sm text-amber-800">
-          ⚠️ <strong>คำแนะนำการส่ง:</strong> กรุณาแพ็คเครื่องในกล่องแข็งแรง ห่อด้วยฟองน้ำหรือกระดาษฟองแอร์ให้มิดชิด
-          เพื่อป้องกันความเสียหายระหว่างขนส่ง
+          ⚠️ <strong>คำแนะนำการส่ง:</strong> กรุณาอ่านวิธีแพ็คเครื่อง หรือ<button onclick="showPackingModal()" class="underline font-semibold text-amber-900">ดูวิธีการแพ็คในลิงก์</button> เพื่อป้องกันความเสียหายระหว่างขนส่ง
         </p>
+      </div>
+
+      <div class="card mb-4">
+        <h3 class="font-bold text-gray-800 mb-2">📄 ใบรับซ่อม</h3>
+        <p class="text-xs text-gray-500 mb-3">คัดลอกลิงก์นี้เพื่อดูหรือแชร์ใบรับซ่อมของคุณ</p>
+        <div class="code-box mb-3" id="receipt-url-box" style="font-size:0.65rem;word-break:break-all;line-height:1.7">–</div>
+        <div class="flex gap-2 mb-2">
+          <button class="btn-main" style="flex:1" onclick="copyReceiptUrl()">
+            <span id="rcopy-icon">📋</span> <span id="rcopy-label">คัดลอกลิงก์</span>
+          </button>
+          <a id="receipt-open-btn" href="#" target="_blank" class="btn-outline" style="width:auto;padding:12px 16px;text-decoration:none;display:flex;align-items:center">📄 เปิด</a>
+        </div>
       </div>
 
       <button class="btn-outline" onclick="resetForm()">📝 แจ้งซ่อมเครื่องอื่น</button>
@@ -299,6 +310,20 @@ function submitForm() {
   window._repairCode = code;
   window._repairData = data;
 
+  const receiptData = {
+    n: data.customerName,
+    p: data.customerPhone,
+    m: data.model + (data.color ? ' / ' + data.color : ''),
+    s: data.symptoms.substring(0, 100),
+    t: data.submittedAt.slice(0, 10)
+  };
+  const receiptCode = encode(receiptData);
+  const receiptUrl = 'https://tanuki0230-rgb.github.io/kitchenaid-system/receipt.html?r=' + encodeURIComponent(receiptCode);
+  document.getElementById('receipt-url-box').textContent = receiptUrl;
+  const receiptBtn = document.getElementById('receipt-open-btn');
+  receiptBtn.href = receiptUrl;
+  window._receiptUrl = receiptUrl;
+
   setStepUI(3); showSection('step3');
 }
 
@@ -347,6 +372,84 @@ function resetForm() {
     .forEach(id => document.getElementById(id).value = '');
   goStep1();
 }
+
+function showShippingModal() {
+  document.getElementById('shipping-modal').style.display = '';
+  document.body.style.overflow = 'hidden';
+}
+function showPackingModal() {
+  document.getElementById('packing-modal').style.display = '';
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(id) {
+  document.getElementById(id).style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function copyReceiptUrl() {
+  const url = window._receiptUrl || document.getElementById('receipt-url-box').textContent;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(flashReceiptCopied);
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = url; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+    flashReceiptCopied();
+  }
+}
+function flashReceiptCopied() {
+  document.getElementById('rcopy-icon').textContent = '✅';
+  document.getElementById('rcopy-label').textContent = 'คัดลอกแล้ว!';
+  setTimeout(() => {
+    document.getElementById('rcopy-icon').textContent = '📋';
+    document.getElementById('rcopy-label').textContent = 'คัดลอกลิงก์';
+  }, 2000);
+}
 </script>
+
+<!-- ===== Shipping Modal ===== -->
+<div id="shipping-modal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.55)" onclick="closeModal('shipping-modal')">
+  <div style="position:absolute;bottom:0;left:0;right:0;background:white;border-radius:20px 20px 0 0;padding:24px;max-height:85vh;overflow-y:auto" onclick="event.stopPropagation()">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="font-weight:700;font-size:1.1rem;color:#111827">📦 ข้อมูลการจัดส่งเครื่อง</h3>
+      <button onclick="closeModal('shipping-modal')" style="font-size:1.8rem;line-height:1;color:#9ca3af;background:none;border:none;cursor:pointer">&times;</button>
+    </div>
+    <div style="background:#f9fafb;border-radius:12px;padding:16px;margin-bottom:12px;font-size:0.9rem;color:#374151;line-height:1.8">
+      <p><strong>ผู้รับ:</strong> คุณต้น (Dr.KitchenAid Service)</p>
+      <p><strong>ที่อยู่:</strong> เลขที่ 15 ซอยเอกชัย 48 แขวงคลองบางพราน เขตบางบอน กรุงเทพมหานคร 10150</p>
+      <p><strong>โทรศัพท์:</strong> 088-555-5159</p>
+      <p><strong>เวลาทำการ:</strong> จันทร์–เสาร์ 09.00–17.00 น. (อาทิตย์หยุด)</p>
+    </div>
+    <a href="https://maps.app.goo.gl/sLjUqm5SiYBGshuD6" target="_blank" class="btn-main" style="display:flex;text-decoration:none;margin-bottom:12px">🗺️ เปิดพิกัดแผนที่</a>
+    <div style="background:#eff6ff;border-radius:12px;padding:16px;font-size:0.875rem;color:#1d4ed8">
+      <p style="font-weight:700;margin-bottom:8px">🚚 ช่องทางจัดส่งแนะนำ</p>
+      <p><strong>กทม.:</strong> แมสเซนเจอร์ (Grab, Lalamove)</p>
+      <p><strong>ต่างจังหวัด:</strong> ขนส่งเอกชน (Flash, J&amp;T, Nim Express)</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Packing Modal ===== -->
+<div id="packing-modal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.55)" onclick="closeModal('packing-modal')">
+  <div style="position:absolute;bottom:0;left:0;right:0;background:white;border-radius:20px 20px 0 0;padding:24px;max-height:85vh;overflow-y:auto" onclick="event.stopPropagation()">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="font-weight:700;font-size:1.1rem;color:#111827">📦 วิธีแพ็คเครื่องก่อนส่ง</h3>
+      <button onclick="closeModal('packing-modal')" style="font-size:1.8rem;line-height:1;color:#9ca3af;background:none;border:none;cursor:pointer">&times;</button>
+    </div>
+    <div style="background:#f9fafb;border-radius:12px;padding:16px;margin-bottom:12px;font-size:0.9rem;color:#374151">
+      <p style="font-weight:700;margin-bottom:10px">ขั้นตอนการแพ็คเครื่อง</p>
+      <ol style="padding-left:20px;list-style:decimal;line-height:2">
+        <li>ถอดอุปกรณ์เสริมออกทั้งหมด (ชาม ตะกร้อ paddle hook) และแพ็คแยก</li>
+        <li>ห่อตัวเครื่องด้วยฟองน้ำหรือกระดาษฟองแอร์อย่างน้อย 2–3 ชั้น</li>
+        <li>ใส่ในกล่องกระดาษแข็งที่มีขนาดพอดี ไม่โยกคลอน</li>
+        <li>อุดช่องว่างด้วยกระดาษหรือฟองน้ำให้แน่น</li>
+        <li>ปิดกล่องด้วยเทปให้แน่น และเขียน "เปราะบาง / FRAGILE" บนกล่อง</li>
+      </ol>
+    </div>
+    <a href="https://youtu.be/9A5bsn5jotk?si=vuNTPZzZ7L0cAXWt" target="_blank" class="btn-main" style="display:flex;text-decoration:none">▶️ ดูวิดีโอวิธีแพ็คเครื่อง</a>
+  </div>
+</div>
+
 </body>
 </html>
