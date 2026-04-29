@@ -44,7 +44,11 @@
       <h1 class="text-xl font-bold text-gray-900">📦 สต็อกอะไหล่</h1>
       <p class="text-sm text-gray-500 mt-0.5">จัดการอะไหล่และสินค้าคงคลัง</p>
     </div>
-    <button class="btn btn-primary" onclick="openPartModal()">+ เพิ่มอะไหล่ใหม่</button>
+    <div class="flex gap-2">
+      <button class="btn btn-secondary" onclick="document.getElementById('csv-file-input').click()">📂 นำเข้า CSV</button>
+      <input type="file" id="csv-file-input" accept=".csv,.txt,.tsv" style="display:none" onchange="handleCsvFile(this)">
+      <button class="btn btn-primary" onclick="openPartModal()">+ เพิ่มอะไหล่ใหม่</button>
+    </div>
   </div>
 
   <!-- Stats row -->
@@ -207,6 +211,45 @@
     <div class="modal-foot">
       <button class="btn btn-secondary btn-sm" onclick="closeAdjModal()">ยกเลิก</button>
       <button class="btn btn-success btn-sm" onclick="confirmAdj()">✅ ยืนยันการปรับสต็อก</button>
+    </div>
+  </div>
+</div>
+
+<!-- CSV Import Modal -->
+<div id="csv-modal" class="modal-bg" style="display:none" onclick="if(event.target===this)closeCsvModal()">
+  <div class="modal-box" style="max-width:700px;width:95%">
+    <div class="modal-head">
+      <h3>📂 นำเข้าอะไหล่จาก CSV</h3>
+      <button onclick="closeCsvModal()" class="text-gray-400 hover:text-gray-600 text-xl font-bold leading-none">×</button>
+    </div>
+    <div class="modal-body space-y-4">
+      <div id="csv-summary" class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm"></div>
+      <div>
+        <label class="form-label">วิธีนำเข้า</label>
+        <div class="grid grid-cols-1 gap-2">
+          <label class="flex items-start gap-2 p-3 border rounded-lg cursor-pointer hover:bg-gray-50 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
+            <input type="radio" name="import-mode" value="skip" checked class="mt-0.5">
+            <div><div class="font-medium text-sm">เพิ่มเฉพาะรายการใหม่</div><div class="text-xs text-gray-500">ถ้ารหัสซ้ำ จะข้ามไม่เขียนทับ</div></div>
+          </label>
+          <label class="flex items-start gap-2 p-3 border rounded-lg cursor-pointer hover:bg-gray-50 has-[:checked]:border-yellow-500 has-[:checked]:bg-yellow-50">
+            <input type="radio" name="import-mode" value="overwrite" class="mt-0.5">
+            <div><div class="font-medium text-sm">เพิ่มใหม่ + อัปเดตรายการที่ซ้ำ</div><div class="text-xs text-gray-500">ถ้ารหัสซ้ำ จะอัปเดตข้อมูลชื่อ/ราคา (จำนวนสต็อกคงเดิม)</div></div>
+          </label>
+        </div>
+      </div>
+      <div>
+        <div class="form-label mb-2">ตัวอย่างข้อมูล (10 รายการแรก)</div>
+        <div class="tbl-wrap" style="max-height:220px;overflow-y:auto">
+          <table class="data-table text-xs">
+            <thead><tr><th>รหัส</th><th>ชื่ออะไหล่</th><th>หมวดหมู่</th><th>หน่วย</th><th class="text-right">ราคาทุน</th><th class="text-right">ราคาขาย</th></tr></thead>
+            <tbody id="csv-preview-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary btn-sm" onclick="closeCsvModal()">ยกเลิก</button>
+      <button class="btn btn-primary btn-sm" onclick="confirmCsvImport()">✅ นำเข้าเลย</button>
     </div>
   </div>
 </div>
@@ -407,6 +450,124 @@ function confirmAdj(){
 
 buildCatPills();
 renderStock();
+
+// ---- CSV Import ----
+let csvParsedRows = [];
+
+function handleCsvFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  input.value = '';
+  const reader = new FileReader();
+  reader.onload = e => {
+    const text = e.target.result;
+    csvParsedRows = parseCsvRows(text);
+    if (!csvParsedRows.length) { alert('ไม่พบข้อมูลในไฟล์ หรือ format ไม่ถูกต้อง'); return; }
+    showCsvModal(file.name);
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function parseCsvRows(text) {
+  const lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n');
+  const rows = [];
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+    // split by tab
+    const cols = line.split('\t').map(c => c.replace(/^"|"$/g,'').trim());
+    if (i === 0) continue; // skip header
+    if (cols.length < 6) continue;
+    const code    = cols[0] || '';
+    const name    = cols[1] || '';
+    const cat     = cols[2] || '';
+    const unit    = cols[3] || 'ชิ้น';
+    const buy     = parseFloat(cols[4]) || 0;
+    const sell1   = parseFloat(cols[5]) || 0;
+    const cost    = parseFloat(cols[10]) || 0; // ราคาต้นทุน
+    const minSt   = parseInt(cols[11]) || 0;
+    if (!name && !code) continue;
+    rows.push({
+      code,
+      name: name || '(ไม่มีชื่อ)',
+      category: cat,
+      unit: unit || 'ชิ้น',
+      costPrice: buy > 0 ? buy : cost,
+      salePrice: sell1,
+      minStock: minSt,
+      stock: 0,
+      description: '',
+    });
+  }
+  return rows;
+}
+
+function showCsvModal(fileName) {
+  const existing = DB.getParts();
+  const existCodes = new Set(existing.map(p => (p.code||'').toLowerCase()));
+  const newCount  = csvParsedRows.filter(r => !existCodes.has(r.code.toLowerCase())).length;
+  const dupCount  = csvParsedRows.length - newCount;
+
+  document.getElementById('csv-summary').innerHTML =
+    `<b>ไฟล์:</b> ${fileName} &nbsp;|&nbsp; <b>พบ ${csvParsedRows.length} รายการ</b> &nbsp;|&nbsp; ` +
+    `<span class="text-green-700">ใหม่ ${newCount}</span> / <span class="text-yellow-700">รหัสซ้ำ ${dupCount}</span>`;
+
+  const preview = csvParsedRows.slice(0, 10);
+  document.getElementById('csv-preview-tbody').innerHTML = preview.map(r =>
+    `<tr>
+      <td class="font-mono">${r.code||'-'}</td>
+      <td>${r.name}</td>
+      <td class="text-gray-500">${r.category||'-'}</td>
+      <td class="text-gray-500">${r.unit}</td>
+      <td class="text-right">฿${fmt(r.costPrice)}</td>
+      <td class="text-right">฿${fmt(r.salePrice)}</td>
+    </tr>`
+  ).join('');
+
+  document.getElementById('csv-modal').style.display = 'flex';
+}
+
+function closeCsvModal() {
+  document.getElementById('csv-modal').style.display = 'none';
+  csvParsedRows = [];
+}
+
+function confirmCsvImport() {
+  if (!csvParsedRows.length) return;
+  const mode = document.querySelector('input[name="import-mode"]:checked').value;
+  const existing = DB.getParts();
+  const existMap = {};
+  existing.forEach(p => { if (p.code) existMap[p.code.toLowerCase()] = p; });
+
+  let added = 0, updated = 0, skipped = 0;
+  csvParsedRows.forEach(r => {
+    const key = r.code.toLowerCase();
+    const dup = existMap[key];
+    if (dup) {
+      if (mode === 'overwrite') {
+        DB.updatePart(dup.id, {
+          name: r.name,
+          category: r.category,
+          unit: r.unit,
+          costPrice: r.costPrice,
+          salePrice: r.salePrice,
+          minStock: r.minStock,
+        });
+        updated++;
+      } else {
+        skipped++;
+      }
+    } else {
+      DB.addPart(r);
+      added++;
+    }
+  });
+
+  closeCsvModal();
+  buildCatPills();
+  renderStock();
+  alert(`นำเข้าเสร็จสิ้น!\nเพิ่มใหม่ ${added} รายการ | อัปเดต ${updated} | ข้าม ${skipped}`);
+}
 </script>
 </body>
 </html>
