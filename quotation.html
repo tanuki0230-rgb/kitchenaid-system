@@ -429,6 +429,7 @@ function saveDoc(statusOverride){
     vatRate:tot.vatRate,
     vatAmount:tot.vatAmt,
     total:tot.total,
+    shopSnapshot: DB.getSettings(),
   };
   if(editingId){
     DB.updateQuotation(editingId,data);
@@ -438,6 +439,20 @@ function saveDoc(statusOverride){
     document.getElementById('form-number').textContent=data.number;
   }
   document.getElementById('convert-btn').style.display=data.status!=='converted'?'':'none';
+
+  if(statusOverride === 'sent'){
+    const q = DB.getQuotationById(editingId);
+    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(q))));
+    const viewUrl = location.href.replace('quotation.html','quote-view.html') + '?d=' + encoded;
+    navigator.clipboard.writeText(viewUrl).then(()=>{
+      alert('✅ บันทึกแล้ว!\n\nคัดลอกลิ้งใบเสนอราคา ' + q.number + ' แล้ว\nนำไปส่งให้ลูกค้าได้เลยครับ');
+    }).catch(()=>{
+      prompt('คัดลอกลิ้งนี้ไปส่งให้ลูกค้าครับ:', viewUrl);
+    });
+    showList();
+    return;
+  }
+
   showList();
 }
 

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ใบเสนอราคา</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap');
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Sarabun',sans-serif;background:#f3f4f6;color:#111;min-height:100vh;padding:24px 16px}
+    .page{max-width:760px;margin:0 auto;background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.10);overflow:hidden}
+    .top-bar{background:#b91c1c;color:#fff;padding:14px 28px;display:flex;align-items:center;gap:12px}
+    .top-bar .logo{font-size:22px}
+    .top-bar .shop{font-size:15pt;font-weight:700}
+    .body{padding:28px 32px}
+    .doc-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid #fecaca}
+    .doc-type{font-size:20pt;font-weight:700;color:#b91c1c}
+    .doc-meta{text-align:right;font-size:10pt;color:#555;line-height:1.8}
+    .shop-sub{font-size:9pt;color:#666;line-height:1.7;margin-top:4px}
+    .cust-box{background:#fef2f2;border-left:4px solid #b91c1c;border-radius:4px;padding:12px 16px;margin-bottom:20px}
+    .cust-box .lbl{font-size:8pt;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+    .cust-box .val{font-size:11pt;font-weight:600}
+    .cust-box .val-sm{font-size:10pt;color:#444;margin-top:2px}
+    table.items{width:100%;border-collapse:collapse;font-size:10pt;margin-bottom:16px}
+    table.items thead tr{background:#b91c1c;color:#fff}
+    table.items th{padding:9px 10px;text-align:left;font-weight:600}
+    table.items td{padding:8px 10px;border-bottom:1px solid #f3f4f6}
+    table.items tbody tr:last-child td{border-bottom:none}
+    table.items tbody tr:hover{background:#fef9f9}
+    .text-right{text-align:right}
+    .text-center{text-align:center}
+    .totals{display:flex;justify-content:flex-end;margin-bottom:20px}
+    .totals table{width:280px;border-collapse:collapse;font-size:10.5pt}
+    .totals td{padding:5px 8px}
+    .totals td:last-child{text-align:right;font-weight:500}
+    .totals td:first-child{color:#555}
+    .totals tr.grand td{font-size:14pt;font-weight:700;color:#b91c1c;padding-top:10px;border-top:2px solid #b91c1c}
+    .notes-box{background:#fafafa;border-left:3px solid #b91c1c;padding:10px 14px;font-size:9.5pt;color:#444;border-radius:4px;margin-bottom:20px}
+    .notes-box .lbl{font-size:8pt;color:#888;text-transform:uppercase;margin-bottom:4px}
+    .sig-row{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:40px}
+    .sig-box{text-align:center}
+    .sig-line{border-top:1px solid #aaa;padding-top:8px;font-size:9pt;color:#777;margin-top:50px}
+    .footer-note{text-align:center;font-size:9pt;color:#aaa;padding:16px;border-top:1px solid #f3f4f6;margin-top:8px}
+    .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:9pt;font-weight:600}
+    .badge-sent{background:#dbeafe;color:#1e40af}
+    .badge-approved{background:#dcfce7;color:#166534}
+    .badge-rejected{background:#fee2e2;color:#991b1b}
+    .badge-draft{background:#f3f4f6;color:#6b7280}
+    @media print{
+      body{background:#fff;padding:0}
+      .page{box-shadow:none;border-radius:0}
+      .no-print{display:none!important}
+    }
+    @media(max-width:600px){
+      .doc-head{flex-direction:column;gap:12px}
+      .doc-meta{text-align:left}
+      .sig-row{grid-template-columns:1fr}
+      .body{padding:16px}
+    }
+  </style>
+</head>
+<body>
+
+<div class="page" id="doc-page">
+  <div class="top-bar">
+    <span class="logo">🍳</span>
+    <span class="shop" id="v-shop">KitchenAid</span>
+  </div>
+  <div class="body">
+    <div class="doc-head">
+      <div>
+        <div id="v-shop-info" class="shop-sub"></div>
+      </div>
+      <div>
+        <div class="doc-type">ใบเสนอราคา</div>
+        <div class="doc-meta" id="v-meta"></div>
+      </div>
+    </div>
+
+    <div class="cust-box">
+      <div class="lbl">ลูกค้า / Customer</div>
+      <div class="val" id="v-cust-name">-</div>
+      <div class="val-sm" id="v-cust-phone"></div>
+      <div class="val-sm" id="v-cust-addr" style="white-space:pre-line"></div>
+    </div>
+
+    <table class="items">
+      <thead>
+        <tr>
+          <th style="width:32px" class="text-center">#</th>
+          <th>รายการ</th>
+          <th style="width:88px">รหัส</th>
+          <th style="width:52px" class="text-center">จำนวน</th>
+          <th style="width:42px" class="text-center">หน่วย</th>
+          <th style="width:96px" class="text-right">ราคา/หน่วย</th>
+          <th style="width:56px" class="text-center">ส่วนลด%</th>
+          <th style="width:100px" class="text-right">จำนวนเงิน</th>
+        </tr>
+      </thead>
+      <tbody id="v-items"></tbody>
+    </table>
+
+    <div class="totals">
+      <table id="v-totals"></table>
+    </div>
+
+    <div id="v-notes-wrap" style="display:none" class="notes-box">
+      <div class="lbl">หมายเหตุ</div>
+      <div id="v-notes"></div>
+    </div>
+
+    <div id="v-payment-wrap" style="display:none" class="notes-box">
+      <div class="lbl">ข้อมูลการชำระเงิน</div>
+      <div id="v-payment"></div>
+    </div>
+
+    <div class="sig-row">
+      <div class="sig-box"><div class="sig-line">ลายเซ็นลูกค้า<br>(......................................................)</div></div>
+      <div class="sig-box"><div class="sig-line">ลายเซ็นผู้มีอำนาจ<br>(......................................................)</div></div>
+    </div>
+  </div>
+  <div class="footer-note">เอกสารนี้สร้างโดยระบบ KitchenAid — ลิ้งนี้ใช้ได้ครั้งเดียว โปรดบันทึกหรือพิมพ์เก็บไว้</div>
+</div>
+
+<div style="text-align:center;margin-top:16px" class="no-print">
+  <button onclick="window.print()" style="background:#b91c1c;color:#fff;border:none;padding:10px 28px;border-radius:8px;font-size:11pt;cursor:pointer;font-family:inherit">🖨️ พิมพ์ / บันทึก PDF</button>
+</div>
+
+<div id="err-page" style="display:none;text-align:center;padding:60px 20px">
+  <div style="font-size:48px;margin-bottom:16px">😕</div>
+  <div style="font-size:14pt;color:#555">ไม่พบข้อมูลใบเสนอราคา</div>
+  <div style="font-size:10pt;color:#aaa;margin-top:8px">ลิ้งอาจหมดอายุหรือไม่ถูกต้อง</div>
+</div>
+
+<script>
+const fmt = (n,d=2)=>Number(n||0).toLocaleString('th-TH',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmtDate = d=>d?new Date(d).toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'}):'-';
+
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function load(){
+  const params = new URLSearchParams(location.search);
+  const raw = params.get('d');
+  if(!raw){ showErr(); return; }
+  let q;
+  try{ q = JSON.parse(decodeURIComponent(escape(atob(raw)))); } catch(e){ showErr(); return; }
+
+  document.title = 'ใบเสนอราคา ' + (q.number||'');
+
+  // shop info from q.shopSnapshot or fallback
+  const shop = q.shopSnapshot || {};
+  document.getElementById('v-shop').textContent = shop.shopName || 'KitchenAid';
+  const shopLines = [shop.address, shop.phone?'โทร. '+shop.phone:'', shop.email||'', shop.taxId?'เลขผู้เสียภาษี: '+shop.taxId:''].filter(Boolean);
+  document.getElementById('v-shop-info').innerHTML = shopLines.map(esc).join('<br>');
+
+  // meta
+  const statusLbl = {draft:'ร่าง',sent:'ส่งแล้ว',approved:'อนุมัติ',rejected:'ปฏิเสธ',converted:'แปลงเป็นบิลแล้ว'};
+  const statusCls = {draft:'badge-draft',sent:'badge-sent',approved:'badge-approved',rejected:'badge-rejected',converted:'badge-approved'};
+  document.getElementById('v-meta').innerHTML =
+    `เลขที่: <strong>${esc(q.number)}</strong><br>` +
+    `วันที่: ${fmtDate(q.date)}<br>` +
+    `ใช้ได้ถึง: ${fmtDate(q.validUntil)}<br>` +
+    `<span class="badge ${statusCls[q.status]||'badge-draft'}">${statusLbl[q.status]||q.status}</span>`;
+
+  // customer
+  document.getElementById('v-cust-name').textContent = q.customerName || '-';
+  const ph = document.getElementById('v-cust-phone');
+  if(q.customerPhone){ ph.textContent = 'โทร. ' + q.customerPhone; }
+  const ad = document.getElementById('v-cust-addr');
+  if(q.customerAddress){ ad.textContent = q.customerAddress; }
+
+  // items
+  const tbody = document.getElementById('v-items');
+  if(!q.items||!q.items.length){
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#aaa;padding:20px">ไม่มีรายการ</td></tr>';
+  } else {
+    tbody.innerHTML = q.items.map((it,i)=>`
+      <tr>
+        <td class="text-center">${i+1}</td>
+        <td>${esc(it.description)}</td>
+        <td style="font-size:9pt;color:#888">${esc(it.code)}</td>
+        <td class="text-center">${it.qty}</td>
+        <td class="text-center">${esc(it.unit||'ชิ้น')}</td>
+        <td class="text-right">฿${fmt(it.price)}</td>
+        <td class="text-center">${it.discPct||0}%</td>
+        <td class="text-right font-weight:600">฿${fmt(it.amount||(it.qty*it.price*(1-(it.discPct||0)/100)))}</td>
+      </tr>`).join('');
+  }
+
+  // totals
+  let totHtml = `<tr><td>ราคารวม</td><td class="text-right">฿${fmt(q.subtotal)}</td></tr>`;
+  if(q.discountAmount){ totHtml += `<tr><td>ส่วนลด</td><td class="text-right">- ฿${fmt(q.discountAmount)}</td></tr>`; }
+  if(q.vatEnabled){ totHtml += `<tr><td>VAT ${q.vatRate}%</td><td class="text-right">฿${fmt(q.vatAmount)}</td></tr>`; }
+  totHtml += `<tr class="grand"><td>ยอดรวมทั้งสิ้น</td><td>฿${fmt(q.total)}</td></tr>`;
+  document.getElementById('v-totals').innerHTML = totHtml;
+
+  // notes
+  if(q.notes){
+    document.getElementById('v-notes').textContent = q.notes;
+    document.getElementById('v-notes-wrap').style.display='';
+  }
+  if(shop.paymentInfo){
+    document.getElementById('v-payment').textContent = shop.paymentInfo;
+    document.getElementById('v-payment-wrap').style.display='';
+  }
+}
+
+function showErr(){
+  document.getElementById('doc-page').style.display='none';
+  document.getElementById('err-page').style.display='';
+}
+
+load();
+</script>
+</body>
+</html>
