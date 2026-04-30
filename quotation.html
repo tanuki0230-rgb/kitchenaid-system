@@ -442,8 +442,12 @@ function saveDoc(statusOverride){
 
   if(statusOverride === 'sent'){
     const q = DB.getQuotationById(editingId);
-    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(q))));
-    const viewUrl = location.href.replace('quotation.html','quote-view.html') + '?d=' + encoded;
+    const json = JSON.stringify(q);
+    const bytes = new TextEncoder().encode(json);
+    let bin = ''; bytes.forEach(b => bin += String.fromCharCode(b));
+    const b64 = btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+    const base = location.href.split('?')[0].replace('quotation.html','quote-view.html');
+    const viewUrl = base + '?d=' + b64;
     const doShowLink = () => { prompt('คัดลอกลิ้งนี้ไปส่งให้ลูกค้าครับ:', viewUrl); showList(); };
     if(navigator.clipboard && navigator.clipboard.writeText){
       navigator.clipboard.writeText(viewUrl).then(()=>{

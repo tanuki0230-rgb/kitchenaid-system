@@ -143,7 +143,14 @@ function load(){
   const raw = params.get('d');
   if(!raw){ showErr(); return; }
   let q;
-  try{ q = JSON.parse(decodeURIComponent(escape(atob(raw)))); } catch(e){ showErr(); return; }
+  try{
+    let b64 = raw.replace(/-/g,'+').replace(/_/g,'/');
+    const pad = b64.length % 4; if(pad) b64 += '='.repeat(4-pad);
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+    q = JSON.parse(new TextDecoder().decode(bytes));
+  } catch(e){ showErr(); return; }
 
   document.title = 'ใบเสนอราคา ' + (q.number||'');
 
