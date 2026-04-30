@@ -444,12 +444,15 @@ function saveDoc(statusOverride){
     const q = DB.getQuotationById(editingId);
     const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(q))));
     const viewUrl = location.href.replace('quotation.html','quote-view.html') + '?d=' + encoded;
-    navigator.clipboard.writeText(viewUrl).then(()=>{
-      alert('✅ บันทึกแล้ว!\n\nคัดลอกลิ้งใบเสนอราคา ' + q.number + ' แล้ว\nนำไปส่งให้ลูกค้าได้เลยครับ');
-    }).catch(()=>{
-      prompt('คัดลอกลิ้งนี้ไปส่งให้ลูกค้าครับ:', viewUrl);
-    });
-    showList();
+    const doShowLink = () => { prompt('คัดลอกลิ้งนี้ไปส่งให้ลูกค้าครับ:', viewUrl); showList(); };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(viewUrl).then(()=>{
+        alert('✅ บันทึกแล้ว!\n\nคัดลอกลิ้งใบเสนอราคา ' + q.number + ' แล้ว\nนำไปส่งให้ลูกค้าได้เลยครับ');
+        showList();
+      }).catch(doShowLink);
+    } else {
+      doShowLink();
+    }
     return;
   }
 
