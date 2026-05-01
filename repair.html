@@ -653,19 +653,16 @@ function buildPrintHtml(r) {
       @page{size:A4;margin:8mm}
       .cut{border-top:1px dashed #aaa;margin:4px 0;text-align:center;color:#aaa;font-size:8pt;letter-spacing:2px;padding-top:4px}
     </style>
+  <style>
+    .print-btn{position:fixed;top:12px;right:16px;background:#b91c1c;color:#fff;border:none;padding:10px 22px;font-size:13pt;border-radius:8px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.2);z-index:999}
+    .print-btn:hover{background:#991b1b}
+    @media print{.print-btn{display:none}}
+  </style>
   </head><body>
+    <button class="print-btn" onclick="window.print()">🖨️ พิมพ์ / Save PDF</button>
     ${receiptBlock('shop')}
     <div class="cut">✂ - - - - - - - - - - - - - - - - สำเนาลูกค้า - - - - - - - - - - - - - - - - ✂</div>
     ${receiptBlock('customer')}
-    <script>
-      window.onload = () => {
-        if (document.fonts && document.fonts.ready) {
-          document.fonts.ready.then(() => setTimeout(() => window.print(), 300));
-        } else {
-          setTimeout(() => window.print(), 800);
-        }
-      };
-    <\/script>
   </body></html>`;
 }
 
