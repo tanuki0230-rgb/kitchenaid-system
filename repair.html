@@ -554,8 +554,8 @@ function buildPrintHtml(r) {
   const estDate = r.estimateDate ? new Date(r.estimateDate).toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'}) : '-';
 
   const receiptBlock = (copy) => `
-    <div style="padding:16px 0 ${copy==='shop'?'0':'20px'}">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:12px;border-bottom:3px solid #b91c1c">
+    <div style="padding:8px 0 ${copy==='shop'?'0':'10px'}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:8px;border-bottom:3px solid #b91c1c">
         <div>
           ${s.shopLogo?`<img src="${s.shopLogo}" style="max-height:56px;max-width:160px;object-fit:contain;margin-bottom:6px;display:block" alt="logo">`:''}
           <div style="font-size:16pt;font-weight:700;color:#b91c1c;margin:0 0 3px">${s.shopName}</div>
@@ -574,9 +574,9 @@ function buildPrintHtml(r) {
         </div>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0">
-        <div style="border:1px solid #e5e7eb;border-radius:6px;padding:10px 14px">
-          <div style="font-size:8pt;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">ข้อมูลลูกค้า</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0">
+        <div style="border:1px solid #e5e7eb;border-radius:6px;padding:7px 10px">
+          <div style="font-size:8pt;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">ข้อมูลลูกค้า</div>
           <div style="font-size:11pt;font-weight:600">${r.customerName||'-'}</div>
           ${r.customerCompany?`<div style="font-size:10pt;color:#555;margin-top:3px">🏢 ${r.customerCompany}</div>`:''}
           ${r.customerTaxId?`<div style="font-size:9.5pt;color:#555;margin-top:2px">เลขผู้เสียภาษี: ${r.customerTaxId}</div>`:''}
@@ -584,8 +584,8 @@ function buildPrintHtml(r) {
           ${r.customerEmail?`<div style="font-size:10pt;color:#555">✉️ ${r.customerEmail}</div>`:''}
           ${r.customerAddress?`<div style="font-size:9.5pt;color:#555;margin-top:3px;white-space:pre-line">${r.customerAddress}</div>`:''}
         </div>
-        <div style="border:1px solid #e5e7eb;border-radius:6px;padding:10px 14px">
-          <div style="font-size:8pt;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">ข้อมูลเครื่อง</div>
+        <div style="border:1px solid #e5e7eb;border-radius:6px;padding:7px 10px">
+          <div style="font-size:8pt;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">ข้อมูลเครื่อง</div>
           <div style="font-size:11pt;font-weight:600">${r.model||'-'}</div>
           ${r.color?`<div style="font-size:10pt;color:#555;margin-top:3px">🎨 สี: ${r.color}</div>`:''}
           <div style="font-size:10pt;color:#555;margin-top:6px">
@@ -595,29 +595,29 @@ function buildPrintHtml(r) {
         </div>
       </div>
 
-      <div style="border:1px solid #e5e7eb;border-radius:6px;padding:10px 14px;margin-bottom:10px">
-        <div style="font-size:8pt;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px">อาการเสีย / ปัญหาที่พบ</div>
+      <div style="border:1px solid #e5e7eb;border-radius:6px;padding:7px 10px;margin-bottom:6px">
+        <div style="font-size:8pt;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">อาการเสีย / ปัญหาที่พบ</div>
         <div style="font-size:10.5pt;white-space:pre-line">${r.symptoms||'-'}</div>
       </div>
 
       ${r.accessories?`
-      <div style="border:1px solid #e5e7eb;border-radius:6px;padding:10px 14px;margin-bottom:10px">
-        <div style="font-size:8pt;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px">ของที่มาพร้อมเครื่อง</div>
+      <div style="border:1px solid #e5e7eb;border-radius:6px;padding:7px 10px;margin-bottom:6px">
+        <div style="font-size:8pt;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">ของที่มาพร้อมเครื่อง</div>
         <div style="font-size:10pt">${r.accessories}</div>
       </div>`:''}
 
       ${r.estimatePrice?`
-      <div style="border:1px solid #e5e7eb;border-radius:6px;padding:10px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">
+      <div style="border:1px solid #e5e7eb;border-radius:6px;padding:6px 10px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center">
         <span style="font-size:9.5pt;color:#555">ราคาประเมิน (ไม่รวม VAT)</span>
         <span style="font-size:13pt;font-weight:700;color:#b91c1c">฿ ${Number(r.estimatePrice).toLocaleString('th-TH',{minimumFractionDigits:2})}</span>
       </div>`:''}
 
       ${r.notes?`
-      <div style="padding:8px 14px;background:#fef3c7;border-left:3px solid #d97706;border-radius:0 6px 6px 0;margin-bottom:10px;font-size:9.5pt;color:#92400e">
+      <div style="padding:6px 10px;background:#fef3c7;border-left:3px solid #d97706;border-radius:0 6px 6px 0;margin-bottom:6px;font-size:9.5pt;color:#92400e">
         <strong>หมายเหตุ:</strong> ${r.notes}
       </div>`:''}
 
-      ${copy==='customer'?`<div style="background:#fafafa;border:1px solid #e5e7eb;border-radius:6px;padding:10px 14px;font-size:8.5pt;color:#6b7280;margin-bottom:14px;line-height:1.7">
+      ${copy==='customer'?`<div style="background:#fafafa;border:1px solid #e5e7eb;border-radius:6px;padding:6px 10px;font-size:8.5pt;color:#6b7280;margin-bottom:8px;line-height:1.6">
         <strong style="color:#374151">เงื่อนไขการรับซ่อม:</strong><br>
         1. กรุณาเก็บใบรับเครื่องซ่อมนี้ไว้เป็นหลักฐานในการรับเครื่องคืน<br>
         2. ร้านไม่รับผิดชอบต่อข้อมูลหรือสิ่งของที่เก็บไว้ในเครื่อง<br>
@@ -626,19 +626,19 @@ function buildPrintHtml(r) {
       </div>`:''}
 
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:30px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
         <div>
-          <div style="border-top:1px solid #555;padding-top:5px;text-align:center;font-size:9pt;color:#777;margin-top:40px">
+          <div style="border-top:1px solid #555;padding-top:4px;text-align:center;font-size:9pt;color:#777;margin-top:22px">
             ลายเซ็นลูกค้า<br>(.....................................................)
           </div>
-          <div style="text-align:center;font-size:8.5pt;color:#9ca3af;margin-top:4px">วันที่ ............../............../..............
+          <div style="text-align:center;font-size:8.5pt;color:#9ca3af;margin-top:3px">วันที่ ............../............../..............
           </div>
         </div>
         <div>
-          <div style="border-top:1px solid #555;padding-top:5px;text-align:center;font-size:9pt;color:#777;margin-top:40px">
+          <div style="border-top:1px solid #555;padding-top:4px;text-align:center;font-size:9pt;color:#777;margin-top:22px">
             ลายเซ็นผู้รับเครื่อง<br>(.....................................................)
           </div>
-          <div style="text-align:center;font-size:8.5pt;color:#9ca3af;margin-top:4px">วันที่ ............../............../..............
+          <div style="text-align:center;font-size:8.5pt;color:#9ca3af;margin-top:3px">วันที่ ............../............../..............
           </div>
         </div>
       </div>
@@ -649,9 +649,9 @@ function buildPrintHtml(r) {
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap');
       *{box-sizing:border-box}
-      body{font-family:'Sarabun',sans-serif;margin:0;padding:14px 20px;font-size:11pt;color:#111}
-      @page{size:A4;margin:12mm}
-      .cut{border-top:1px dashed #aaa;margin:10px 0;text-align:center;color:#aaa;font-size:8pt;letter-spacing:2px;padding-top:6px}
+      body{font-family:'Sarabun',sans-serif;margin:0;padding:4px 14px;font-size:10.5pt;color:#111}
+      @page{size:A4;margin:8mm}
+      .cut{border-top:1px dashed #aaa;margin:4px 0;text-align:center;color:#aaa;font-size:8pt;letter-spacing:2px;padding-top:4px}
     </style>
   </head><body>
     ${receiptBlock('shop')}
