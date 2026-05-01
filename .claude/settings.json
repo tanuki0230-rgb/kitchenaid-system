@@ -5,7 +5,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cmd /c \"D:\\Claude-system\\kitchenaid-system\\deploy.bat\"",
+            "command": "& 'D:\\Claude-system\\kitchenaid-system\\deploy.bat'",
+            "shell": "powershell",
             "timeout": 60,
             "statusMessage": "Deploying to GitHub & NAS..."
           }
