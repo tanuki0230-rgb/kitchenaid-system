@@ -184,6 +184,7 @@ function removeLogo(){
 function saveSettings(){
   const name=document.getElementById('s-name').value.trim();
   if(!name){alert('กรุณากรอกชื่อร้าน');document.getElementById('s-name').focus();return;}
+  const current=DB.getSettings();
   DB.saveSettings({
     shopName:name,
     address:document.getElementById('s-address').value.trim(),
@@ -192,6 +193,7 @@ function saveSettings(){
     taxId:document.getElementById('s-taxid').value.trim(),
     vatRate:parseFloat(document.getElementById('s-vat').value)||7,
     paymentInfo:document.getElementById('s-payment').value.trim(),
+    shopLogo:current.shopLogo||'',
   });
   const toast=document.getElementById('toast');
   toast.style.display='block';
