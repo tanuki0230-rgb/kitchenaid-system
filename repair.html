@@ -658,25 +658,28 @@ function buildPrintHtml(r) {
     ${receiptBlock('shop')}
     <div class="cut">✂ - - - - - - - - - - - - - - - - สำเนาลูกค้า - - - - - - - - - - - - - - - - ✂</div>
     ${receiptBlock('customer')}
-    <script>window.onload=()=>window.print()<\/script>
+    <script>window.onload=()=>setTimeout(()=>window.print(),600)<\/script>
   </body></html>`;
+}
+
+function openPrintWindow(html) {
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url  = URL.createObjectURL(blob);
+  window.open(url, '_blank');
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
 }
 
 function printById(id) {
   const r = DB.getRepairById(id);
   if (!r) return;
-  const w = window.open('','_blank');
-  w.document.write(buildPrintHtml(r));
-  w.document.close();
+  openPrintWindow(buildPrintHtml(r));
 }
 
 function printRepair() {
   if (!editingId) { alert('กรุณาบันทึกข้อมูลก่อนพิมพ์'); return; }
   const r = DB.getRepairById(editingId);
   if (!r) return;
-  const w = window.open('','_blank');
-  w.document.write(buildPrintHtml(r));
-  w.document.close();
+  openPrintWindow(buildPrintHtml(r));
 }
 
 function escHtml(s) {
