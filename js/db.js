@@ -138,4 +138,20 @@ const DB = {
   saveSettings(s) {
     localStorage.setItem('ka_settings', JSON.stringify(s));
   },
+  applyNavLogo() {
+    const logo = this.getSettings().shopLogo;
+    const img  = document.getElementById('nav-logo');
+    const icon = document.getElementById('nav-icon');
+    if (!img) return;
+    if (logo) {
+      img.src = logo;
+      img.style.display = '';
+      if (icon) icon.style.display = 'none';
+    } else {
+      img.style.display = 'none';
+      if (icon) icon.style.display = '';
+    }
+  },
 };
+
+document.addEventListener('DOMContentLoaded', () => DB.applyNavLogo());

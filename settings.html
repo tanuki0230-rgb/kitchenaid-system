@@ -13,7 +13,7 @@
   <div class="max-w-7xl mx-auto px-4">
     <div class="flex items-center justify-between h-14">
       <a href="index.html" class="flex items-center gap-2 font-bold text-lg text-white no-underline">
-        <span class="text-2xl">🍳</span><span>KitchenAid</span>
+        <span id="nav-icon" class="text-2xl">🍳</span><img id="nav-logo" style="height:32px;display:none;border-radius:4px;object-fit:contain" alt="logo"><span>KitchenAid</span>
       </a>
       <div class="hidden md:flex gap-1">
         <a href="index.html"      class="nav-link">🏠 แดชบอร์ด</a>
@@ -91,6 +91,23 @@
   </div>
 
   <div class="card mb-4">
+    <div class="card-header">🖼️ โลโก้ร้าน</div>
+    <div class="p-5 space-y-4">
+      <div id="logo-preview-wrap" style="display:none" class="flex items-center gap-4">
+        <img id="logo-preview" style="max-height:80px;max-width:200px;border:1px solid #e5e7eb;border-radius:8px;padding:4px;background:#fff;object-fit:contain" alt="logo">
+        <button class="btn btn-danger btn-sm" onclick="removeLogo()">🗑️ ลบโลโก้</button>
+      </div>
+      <div>
+        <label class="btn btn-secondary btn-sm cursor-pointer">
+          📁 เลือกรูปโลโก้
+          <input type="file" id="logo-file" accept="image/*" style="display:none" onchange="handleLogoUpload(event)">
+        </label>
+        <p class="text-xs text-gray-400 mt-2">รองรับ JPG, PNG, SVG — แนะนำขนาดไม่เกิน 500KB</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-4">
     <div class="card-header">🗄️ จัดการข้อมูล</div>
     <div class="p-5 space-y-4">
       <div class="flex flex-wrap gap-3">
@@ -128,6 +145,40 @@ function loadSettings(){
   document.getElementById('s-taxid').value=s.taxId||'';
   document.getElementById('s-vat').value=s.vatRate!=null?s.vatRate:7;
   document.getElementById('s-payment').value=s.paymentInfo||'';
+  if(s.shopLogo){
+    document.getElementById('logo-preview').src=s.shopLogo;
+    document.getElementById('logo-preview-wrap').style.display='flex';
+  }
+}
+
+function handleLogoUpload(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  if(file.size>1024*1024){alert('ไฟล์ใหญ่เกิน 1MB กรุณาเลือกรูปขนาดเล็กกว่านี้');e.target.value='';return;}
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const base64=ev.target.result;
+    document.getElementById('logo-preview').src=base64;
+    document.getElementById('logo-preview-wrap').style.display='flex';
+    const s=DB.getSettings();
+    DB.saveSettings({...s,shopLogo:base64});
+    DB.applyNavLogo();
+    const toast=document.getElementById('toast');
+    toast.style.display='block';
+    setTimeout(()=>toast.style.display='none',3000);
+  };
+  reader.readAsDataURL(file);
+  e.target.value='';
+}
+
+function removeLogo(){
+  if(!confirm('ยืนยันการลบโลโก้?'))return;
+  const s=DB.getSettings();
+  delete s.shopLogo;
+  DB.saveSettings(s);
+  document.getElementById('logo-preview-wrap').style.display='none';
+  document.getElementById('logo-preview').src='';
+  DB.applyNavLogo();
 }
 
 function saveSettings(){

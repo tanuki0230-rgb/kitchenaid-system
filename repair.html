@@ -26,7 +26,7 @@
   <div class="max-w-7xl mx-auto px-4">
     <div class="flex items-center justify-between h-14">
       <a href="index.html" class="flex items-center gap-2 font-bold text-lg text-white no-underline">
-        <span class="text-2xl">🍳</span><span>KitchenAid</span>
+        <span id="nav-icon" class="text-2xl">🍳</span><img id="nav-logo" style="height:32px;display:none;border-radius:4px;object-fit:contain" alt="logo"><span>KitchenAid</span>
       </a>
       <div class="hidden md:flex gap-1">
         <a href="index.html"      class="nav-link">🏠 แดชบอร์ด</a>
@@ -557,6 +557,7 @@ function buildPrintHtml(r) {
     <div style="padding:16px 0 ${copy==='shop'?'0':'20px'}">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:12px;border-bottom:3px solid #b91c1c">
         <div>
+          ${s.shopLogo?`<img src="${s.shopLogo}" style="max-height:56px;max-width:160px;object-fit:contain;margin-bottom:6px;display:block" alt="logo">`:''}
           <div style="font-size:16pt;font-weight:700;color:#b91c1c;margin:0 0 3px">${s.shopName}</div>
           <div style="font-size:9pt;color:#555;line-height:1.6">
             ${s.address?s.address+'<br>':''}
