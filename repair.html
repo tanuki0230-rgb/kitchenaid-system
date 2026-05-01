@@ -178,6 +178,14 @@
             <input id="f-email" class="form-input" placeholder="email@example.com" type="email">
           </div>
           <div>
+            <label class="form-label">ชื่อบริษัท</label>
+            <input id="f-company" class="form-input" placeholder="ชื่อบริษัท (ถ้ามี)">
+          </div>
+          <div>
+            <label class="form-label">เลขประจำตัวผู้เสียภาษี</label>
+            <input id="f-taxid" class="form-input" placeholder="เลข 13 หลัก (ถ้ามี)">
+          </div>
+          <div>
             <label class="form-label">ที่อยู่</label>
             <textarea id="f-address" class="form-input" rows="2" placeholder="ที่อยู่ (สำหรับส่งกลับ)"></textarea>
           </div>
@@ -404,9 +412,11 @@ function showForm(id = null) {
     if (!r) return;
     document.getElementById('form-title').textContent = 'แก้ไขใบรับเครื่องซ่อม';
     document.getElementById('form-number').textContent = r.number;
-    document.getElementById('f-name').value           = r.customerName  || '';
-    document.getElementById('f-phone').value          = r.customerPhone || '';
-    document.getElementById('f-email').value          = r.customerEmail || '';
+    document.getElementById('f-name').value            = r.customerName    || '';
+    document.getElementById('f-phone').value          = r.customerPhone   || '';
+    document.getElementById('f-email').value          = r.customerEmail   || '';
+    document.getElementById('f-company').value        = r.customerCompany || '';
+    document.getElementById('f-taxid').value          = r.customerTaxId   || '';
     document.getElementById('f-address').value        = r.customerAddress || '';
     document.getElementById('f-model').value          = r.model         || '';
     document.getElementById('f-color').value          = r.color         || '';
@@ -423,7 +433,7 @@ function showForm(id = null) {
   } else {
     document.getElementById('form-title').textContent = 'รับเครื่องซ่อมใหม่';
     document.getElementById('form-number').textContent = '';
-    ['f-name','f-phone','f-email','f-address','f-model','f-color',
+    ['f-name','f-phone','f-email','f-company','f-taxid','f-address','f-model','f-color',
      'f-symptoms','f-accessories','f-notes','f-estimate-price'].forEach(i => document.getElementById(i).value = '');
     document.getElementById('f-received-at').value   = nowDT();
     document.getElementById('f-estimate-date').value = '';
@@ -464,6 +474,8 @@ function saveRepair() {
     customerName    : name,
     customerPhone   : document.getElementById('f-phone').value.trim(),
     customerEmail   : document.getElementById('f-email').value.trim(),
+    customerCompany : document.getElementById('f-company').value.trim(),
+    customerTaxId   : document.getElementById('f-taxid').value.trim(),
     customerAddress : document.getElementById('f-address').value.trim(),
     model,
     color           : document.getElementById('f-color').value.trim(),
@@ -565,6 +577,8 @@ function buildPrintHtml(r) {
         <div style="border:1px solid #e5e7eb;border-radius:6px;padding:10px 14px">
           <div style="font-size:8pt;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">ข้อมูลลูกค้า</div>
           <div style="font-size:11pt;font-weight:600">${r.customerName||'-'}</div>
+          ${r.customerCompany?`<div style="font-size:10pt;color:#555;margin-top:3px">🏢 ${r.customerCompany}</div>`:''}
+          ${r.customerTaxId?`<div style="font-size:9.5pt;color:#555;margin-top:2px">เลขผู้เสียภาษี: ${r.customerTaxId}</div>`:''}
           ${r.customerPhone?`<div style="font-size:10pt;color:#555;margin-top:3px">📞 ${r.customerPhone}</div>`:''}
           ${r.customerEmail?`<div style="font-size:10pt;color:#555">✉️ ${r.customerEmail}</div>`:''}
           ${r.customerAddress?`<div style="font-size:9.5pt;color:#555;margin-top:3px;white-space:pre-line">${r.customerAddress}</div>`:''}
