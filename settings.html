@@ -120,6 +120,7 @@
       <div class="border-t pt-4">
         <p class="text-sm text-gray-600 mb-3">⚠️ โซนอันตราย: ลบข้อมูลทั้งหมด</p>
         <div class="flex flex-wrap gap-2">
+          <button class="btn btn-danger btn-sm" onclick="clearData('ka_repairs','ใบรับซ่อม')">ลบใบรับซ่อมทั้งหมด</button>
           <button class="btn btn-danger btn-sm" onclick="clearData('ka_quotations','ใบเสนอราคา')">ลบใบเสนอราคาทั้งหมด</button>
           <button class="btn btn-danger btn-sm" onclick="clearData('ka_invoices','บิล')">ลบบิลทั้งหมด</button>
           <button class="btn btn-danger btn-sm" onclick="clearData('ka_parts','อะไหล่')">ลบสต็อกอะไหล่ทั้งหมด</button>
@@ -203,6 +204,7 @@ function saveSettings(){
 function exportData(){
   const data={
     settings:DB.getSettings(),
+    repairs:DB.getRepairs(),
     parts:DB.getParts(),
     quotations:DB.getQuotations(),
     invoices:DB.getInvoices(),
@@ -223,7 +225,8 @@ function importData(e){
     try{
       const data=JSON.parse(ev.target.result);
       if(!confirm('การ Import จะเขียนทับข้อมูลปัจจุบัน ยืนยัน?'))return;
-      if(data.settings) DB.saveSettings(data.settings);
+      if(data.settings)  DB.saveSettings(data.settings);
+      if(data.repairs)   localStorage.setItem('ka_repairs',JSON.stringify(data.repairs));
       if(data.parts)     localStorage.setItem('ka_parts',JSON.stringify(data.parts));
       if(data.quotations)localStorage.setItem('ka_quotations',JSON.stringify(data.quotations));
       if(data.invoices)  localStorage.setItem('ka_invoices',JSON.stringify(data.invoices));
