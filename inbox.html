@@ -81,6 +81,7 @@
     <div class="flex items-center justify-between mb-3">
       <h1 class="text-xl font-bold text-gray-900">💬 Facebook Inbox</h1>
       <div class="flex gap-2">
+        <button onclick="setupWebhook()" class="btn btn-secondary btn-sm">🔗 Setup</button>
         <button onclick="loadConversations()" class="btn btn-secondary btn-sm">🔄 รีเฟรช</button>
         <button onclick="openConfig()" class="btn btn-secondary btn-sm">⚙️</button>
       </div>
@@ -287,6 +288,19 @@ async function deleteConv() {
     document.getElementById('msg-empty').style.display = '';
     await loadConversations();
   } catch (e) { alert('ลบไม่ได้: ' + e.message); }
+}
+
+async function setupWebhook() {
+  if (!confirm('Subscribe เพจกับ Webhook ของ Facebook?\n(ทำครั้งเดียวพอครับ)')) return;
+  try {
+    const res = await fetch(workerUrl + '/setup', {
+      method: 'POST',
+      headers: { 'X-API-Key': apiKey },
+    });
+    const data = await res.json();
+    if (data.success) alert('✅ Subscribe สำเร็จ! ตอนนี้รับข้อความได้แล้ว');
+    else alert('ผลลัพธ์: ' + JSON.stringify(data));
+  } catch(e) { alert('Error: ' + e.message); }
 }
 
 function handleKey(e) {
