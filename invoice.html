@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>บิล/ใบแจ้งหนี้ - KitchenAid</title>
+  <title>ใบเสร็จรับเงิน - KitchenAid</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -44,8 +44,8 @@
   <div id="list-view">
     <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
       <div>
-        <h1 class="text-xl font-bold text-gray-900">🧾 บิล / ใบแจ้งหนี้</h1>
-        <p class="text-sm text-gray-500 mt-0.5">จัดการบิลและการชำระเงิน</p>
+        <h1 class="text-xl font-bold text-gray-900">🧾 ใบเสร็จรับเงิน</h1>
+        <p class="text-sm text-gray-500 mt-0.5">จัดการใบเสร็จรับเงิน</p>
       </div>
       <button class="btn btn-primary" onclick="showForm()">+ สร้างบิลใหม่</button>
     </div>
@@ -563,7 +563,7 @@ function buildPrintHtml(inv){
         </div>
       </div>
       <div>
-        <div class="doc-type">ใบแจ้งหนี้ / Invoice</div>
+        <div class="doc-type">ใบเสร็จรับเงิน / Receipt</div>
         <div class="doc-num">
           เลขที่: <strong>${inv.number}</strong><br>
           วันที่: ${inv.date?new Date(inv.date).toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'}):'-'}<br>
