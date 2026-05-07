@@ -107,6 +107,21 @@ export default {
       return json({ ok: true });
     }
 
+    // POST /stock  { parts: [...] }  — browser syncs stock snapshot to KV
+    if (request.method === 'POST' && url.pathname === '/stock') {
+      const { parts } = await request.json().catch(() => ({}));
+      if (!Array.isArray(parts)) return json({ error: 'parts must be array' }, 400);
+      await env.KV.put('stock_parts', JSON.stringify(parts));
+      return json({ ok: true });
+    }
+
+    // GET /stock/low — items where stock <= minStock (and minStock > 0)
+    if (request.method === 'GET' && url.pathname === '/stock/low') {
+      const parts = await env.KV.get('stock_parts', 'json') || [];
+      const low = parts.filter(p => (p.minStock || 0) > 0 && (p.stock || 0) <= (p.minStock || 0));
+      return json(low);
+    }
+
     return new Response('Not Found', { status: 404 });
   },
 };
