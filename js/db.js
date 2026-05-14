@@ -1,16 +1,20 @@
 'use strict';
 
+const DEFAULT_WORKER_URL = 'https://kitchenaid-messenger.dr-kicthenaid.workers.dev';
+const DEFAULT_API_KEY    = 'ka-secret-999';
+
 const DB = {
   _store: { quotations: [], invoices: [], repairs: [], parts: [], settings: {}, sequences: {} },
   _syncTimer: null,
   _initialized: false,
+  _loadedFromKV: false,
 
   _workerUrl() {
-    let u = (localStorage.getItem('ka_worker_url') || '').trim().replace(/\/$/, '');
+    let u = (localStorage.getItem('ka_worker_url') || DEFAULT_WORKER_URL).trim().replace(/\/$/, '');
     if (u && !u.startsWith('http')) u = 'https://' + u;
     return u;
   },
-  _apiKey()    { return localStorage.getItem('ka_api_key') || ''; },
+  _apiKey()    { return localStorage.getItem('ka_api_key') || DEFAULT_API_KEY; },
 
   async init() {
     if (this._initialized) return;
@@ -31,6 +35,7 @@ const DB = {
             settings:   data.settings   || {},
             sequences:  data.sequences  || {},
           };
+          this._loadedFromKV = true;
           this.applyNavLogo();
           return;
         }
@@ -54,6 +59,11 @@ const DB = {
   },
 
   async _doSync() {
+    // Safety: ห้าม sync ถ้ายังโหลดจาก KV ไม่สำเร็จ — ป้องกันการ overwrite KV ด้วย state ว่าง
+    if (!this._loadedFromKV) {
+      console.warn('[DB] Skip sync: not loaded from KV yet (refusing to overwrite remote data)');
+      return;
+    }
     const url = this._workerUrl();
     if (!url) return;
     try {
