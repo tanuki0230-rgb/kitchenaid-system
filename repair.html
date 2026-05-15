@@ -200,38 +200,53 @@
         <div class="p-4 space-y-3">
           <div>
             <label class="form-label">รุ่นเครื่อง <span class="text-red-500">*</span></label>
-            <input id="f-model" class="form-input" placeholder="เช่น KSM150, KSM7, KSM3311X..." list="model-list">
-            <datalist id="model-list">
-              <option value="KSM150 Artisan (4.8L)">
-              <option value="KSM3311X Artisan Mini (3.3L)">
-              <option value="KSM195 Artisan Design (4.8L)">
-              <option value="KSM7 Pro Line (6.9L)">
-              <option value="KSM8 Commercial (10.4L)">
-              <option value="KSM75 Ultra Power (4.3L)">
-              <option value="KSM90 Classic (4.3L)">
-              <option value="KSM500 Pro 500 (4.8L)">
-              <option value="KSM600 Pro 600 (5.7L)">
-              <option value="KSM70 Classic Plus (4.3L)">
-              <option value="KHM5 Hand Mixer 5Speed">
-              <option value="KHM7 Hand Mixer 7Speed">
-              <option value="KHM9 Hand Mixer 9Speed">
-            </datalist>
+            <select id="f-model" class="form-input" onchange="toggleModelOther(this)">
+              <option value="">-- เลือกรุ่นเครื่อง --</option>
+              <optgroup label="Heavy Duty (Bowl-Lift)">
+                <option value="5KPM5 Heavy Duty (4.8L)">5KPM5 Heavy Duty (4.8L)</option>
+                <option value="KP26M1X Professional 600 (5.7L)">KP26M1X Professional 600 (5.7L)</option>
+                <option value="KV25G0X Professional 5 Plus (4.7L)">KV25G0X Professional 5 Plus (4.7L)</option>
+              </optgroup>
+              <optgroup label="Artisan (Tilt-Head)">
+                <option value="KSM150 Artisan (4.8L)">KSM150 Artisan (4.8L)</option>
+                <option value="KSM3311X Artisan Mini (3.3L)">KSM3311X Artisan Mini (3.3L)</option>
+                <option value="KSM195 Artisan Design (4.8L)">KSM195 Artisan Design (4.8L)</option>
+                <option value="KSM7 Pro Line (6.9L)">KSM7 Pro Line (6.9L)</option>
+                <option value="KSM8 Commercial (10.4L)">KSM8 Commercial (10.4L)</option>
+                <option value="KSM75 Ultra Power (4.3L)">KSM75 Ultra Power (4.3L)</option>
+                <option value="KSM90 Classic (4.3L)">KSM90 Classic (4.3L)</option>
+                <option value="KSM500 Pro 500 (4.8L)">KSM500 Pro 500 (4.8L)</option>
+                <option value="KSM600 Pro 600 (5.7L)">KSM600 Pro 600 (5.7L)</option>
+              </optgroup>
+              <optgroup label="Hand Mixer">
+                <option value="KHM5 Hand Mixer 5Speed">KHM5 Hand Mixer 5Speed</option>
+                <option value="KHM7 Hand Mixer 7Speed">KHM7 Hand Mixer 7Speed</option>
+                <option value="KHM9 Hand Mixer 9Speed">KHM9 Hand Mixer 9Speed</option>
+              </optgroup>
+              <option value="__other__">อื่นๆ (โปรดระบุ)</option>
+            </select>
+            <input id="f-model-other" class="form-input mt-2" placeholder="ระบุรุ่นเครื่อง..." style="display:none">
+            <p class="text-xs text-gray-400 mt-1">ดูได้จากสติ๊กเกอร์ใต้เครื่องหรือในกล่อง</p>
           </div>
           <div>
             <label class="form-label">สี</label>
-            <input id="f-color" class="form-input" placeholder="เช่น Empire Red, Silver, White..." list="color-list">
-            <datalist id="color-list">
-              <option value="Empire Red (แดง)">
-              <option value="Silver (เงิน)">
-              <option value="White (ขาว)">
-              <option value="Black (ดำ)">
-              <option value="Contour Silver (เงินเข้ม)">
-              <option value="Ice Blue (ฟ้า)">
-              <option value="Pistachio (เขียว)">
-              <option value="Almond Cream (ครีม)">
-              <option value="Misty Blue (น้ำเงิน)">
-              <option value="Hibiscus (ชมพู)">
-            </datalist>
+            <select id="f-color" class="form-input" onchange="toggleColorOther(this)">
+              <option value="">-- เลือกสีเครื่อง --</option>
+              <option value="Empire Red">Empire Red (แดง)</option>
+              <option value="Contour Silver">Contour Silver (เงิน)</option>
+              <option value="Onyx Black">Onyx Black (ดำ)</option>
+              <option value="Ice Blue">Ice Blue (ฟ้า)</option>
+              <option value="Hibiscus">Hibiscus (ชมพู)</option>
+              <option value="Pistachio">Pistachio (เขียว)</option>
+              <option value="White">White (ขาว)</option>
+              <option value="Imperial Grey">Imperial Grey (เทา)</option>
+              <option value="Matte Black">Matte Black (ดำด้าน)</option>
+              <option value="Blue Velvet">Blue Velvet (น้ำเงิน)</option>
+              <option value="Beetroot">Beetroot (ม่วงแดง)</option>
+              <option value="Honeydew">Honeydew (เขียวอ่อน)</option>
+              <option value="__other__">อื่นๆ (โปรดระบุ)</option>
+            </select>
+            <input id="f-color-other" class="form-input mt-2" placeholder="ระบุสีเครื่อง..." style="display:none">
           </div>
           <div>
             <label class="form-label">วัน/เวลารับเครื่อง <span class="text-red-500">*</span></label>
@@ -404,6 +419,41 @@ function showList() {
 }
 
 // ---- Form ----
+function toggleModelOther(sel) {
+  const other = document.getElementById('f-model-other');
+  other.style.display = sel.value === '__other__' ? '' : 'none';
+  if (sel.value === '__other__') other.focus();
+}
+function toggleColorOther(sel) {
+  const other = document.getElementById('f-color-other');
+  other.style.display = sel.value === '__other__' ? '' : 'none';
+  if (sel.value === '__other__') other.focus();
+}
+function setSelectWithOther(selId, otherId, value) {
+  const sel = document.getElementById(selId);
+  const other = document.getElementById(otherId);
+  const v = (value || '').trim();
+  const match = [...sel.options].some(o => o.value === v && o.value !== '' && o.value !== '__other__');
+  if (match) {
+    sel.value = v;
+    other.value = '';
+    other.style.display = 'none';
+  } else if (v) {
+    sel.value = '__other__';
+    other.value = v;
+    other.style.display = '';
+  } else {
+    sel.value = '';
+    other.value = '';
+    other.style.display = 'none';
+  }
+}
+function getSelectWithOther(selId, otherId) {
+  const sel = document.getElementById(selId);
+  if (sel.value === '__other__') return document.getElementById(otherId).value.trim();
+  return sel.value.trim();
+}
+
 function showForm(id = null) {
   editingId = id;
   document.getElementById('list-view').style.display = 'none';
@@ -420,8 +470,8 @@ function showForm(id = null) {
     document.getElementById('f-company').value        = r.customerCompany || '';
     document.getElementById('f-taxid').value          = r.customerTaxId   || '';
     document.getElementById('f-address').value        = r.customerAddress || '';
-    document.getElementById('f-model').value          = r.model         || '';
-    document.getElementById('f-color').value          = r.color         || '';
+    setSelectWithOther('f-model', 'f-model-other', r.model || '');
+    setSelectWithOther('f-color', 'f-color-other', r.color || '');
     document.getElementById('f-received-at').value    = r.receivedAt    || '';
     document.getElementById('f-estimate-date').value  = r.estimateDate  || '';
     document.getElementById('f-symptoms').value       = r.symptoms      || '';
@@ -436,7 +486,10 @@ function showForm(id = null) {
     document.getElementById('form-title').textContent = 'รับเครื่องซ่อมใหม่';
     document.getElementById('form-number').textContent = '';
     ['f-name','f-phone','f-email','f-company','f-taxid','f-address','f-model','f-color',
+     'f-model-other','f-color-other',
      'f-symptoms','f-accessories','f-notes','f-estimate-price'].forEach(i => document.getElementById(i).value = '');
+    document.getElementById('f-model-other').style.display = 'none';
+    document.getElementById('f-color-other').style.display = 'none';
     document.getElementById('f-received-at').value   = nowDT();
     document.getElementById('f-estimate-date').value = '';
     document.getElementById('f-status').value        = 'received';
@@ -464,7 +517,7 @@ function updateTimeline(current) {
 // ---- Save ----
 function saveRepair() {
   const name     = document.getElementById('f-name').value.trim();
-  const model    = document.getElementById('f-model').value.trim();
+  const model    = getSelectWithOther('f-model', 'f-model-other');
   const symptoms = document.getElementById('f-symptoms').value.trim();
   const recAt    = document.getElementById('f-received-at').value;
   if (!name)     { alert('กรุณากรอกชื่อลูกค้า');  document.getElementById('f-name').focus();        return; }
@@ -480,7 +533,7 @@ function saveRepair() {
     customerTaxId   : document.getElementById('f-taxid').value.trim(),
     customerAddress : document.getElementById('f-address').value.trim(),
     model,
-    color           : document.getElementById('f-color').value.trim(),
+    color           : getSelectWithOther('f-color', 'f-color-other'),
     receivedAt      : recAt,
     estimateDate    : document.getElementById('f-estimate-date').value,
     symptoms,
@@ -758,8 +811,8 @@ function confirmImport() {
     document.getElementById('f-company').value     = data.customerCompany || '';
     document.getElementById('f-taxid').value       = data.customerTaxId   || '';
     document.getElementById('f-address').value     = data.customerAddress || '';
-    document.getElementById('f-model').value       = data.model           || '';
-    document.getElementById('f-color').value       = data.color           || '';
+    setSelectWithOther('f-model', 'f-model-other', data.model || '');
+    setSelectWithOther('f-color', 'f-color-other', data.color || '');
     document.getElementById('f-symptoms').value    = data.symptoms        || '';
     document.getElementById('f-accessories').value = data.accessories     || '';
     document.getElementById('f-received-at').value = nowDT();
